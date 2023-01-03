@@ -31,13 +31,13 @@ public class AuditTrailAdaptor {
 
     @KafkaListener(id = "audit-trail-listener-one", topicPartitions = {@TopicPartition(topic = "herron-audit-trail",
             partitionOffsets = @PartitionOffset(partition = "0", initialOffset = "0"))})
-    public void listenBitstampMarketDataOne(ConsumerRecord<String, String> consumerRecord) {
+    public void listenAuditTrailOne(ConsumerRecord<String, String> consumerRecord) {
         queueMessage(consumerRecord, PARTITION_ZERO_KEY);
     }
 
     @KafkaListener(id = "audit-trail-listener-two", topicPartitions = {@TopicPartition(topic = "herron-audit-trail",
             partitionOffsets = @PartitionOffset(partition = "1", initialOffset = "0"))})
-    public void listenBitstampMarketDataTwo(ConsumerRecord<String, String> consumerRecord) {
+    public void listenAuditTrailTwo(ConsumerRecord<String, String> consumerRecord) {
         queueMessage(consumerRecord, PARTITION_ONE_KEY);
     }
 

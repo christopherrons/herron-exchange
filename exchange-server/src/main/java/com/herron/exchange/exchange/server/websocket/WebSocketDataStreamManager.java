@@ -8,7 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 public class WebSocketDataStreamManager {
     private final SimpMessagingTemplate messagingTemplate;
-    private static final String baseTopic = "/topic/";
+    private static final String BASE_TOPIC = "/topic/";
 
     public WebSocketDataStreamManager(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
@@ -24,7 +24,7 @@ public class WebSocketDataStreamManager {
 
     private void publishData(String endPoint, DataStream dataStream) {
         if (!dataStream.isEmpty()) {
-            // messagingTemplate.convertAndSend(baseTopic + endPoint, dataStream);
+            messagingTemplate.convertAndSend(BASE_TOPIC + "test", "dataStream");
         }
     }
 }
