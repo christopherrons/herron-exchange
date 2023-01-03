@@ -4,5 +4,5 @@ import com.herron.exchange.common.api.common.api.Order;
 
 import java.util.List;
 
-public record OrderbookSnapshot(long latestSequenceNumber, List<Order> bidOrders, List<Order> askOrders) {
+public record OrderbookSnapshot(long sequenceNumber, List<Order> bidOrders, List<Order> askOrders) {
 }

@@ -19,13 +19,11 @@ public class OrderbookRestController {
     @Autowired
     private OrderbookRestService orderbookRestService;
 
-    @GetMapping("/snaphot")
+    @GetMapping("/snapshot")
     @Operation(summary = "Request orderbook snapshot.",
             description = "This method returns the latest orderbook snapshot.")
     public OrderbookSnapshotDto getOrderbookSnapshot(OrderbookSnapshotRestRequest orderbookSnapshotRestRequest) {
         LOGGER.info("Get request for latest orderbook snapshot received.");
         return orderbookRestService.getOrderbookSnapshot(orderbookSnapshotRestRequest);
     }
-
-
 }

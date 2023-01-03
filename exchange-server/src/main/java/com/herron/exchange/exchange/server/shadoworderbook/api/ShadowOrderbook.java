@@ -58,5 +58,5 @@ public interface ShadowOrderbook {
 
     OrderbookSnapshot getOrderbookSnapshot();
 
-    long getLatestSequenceNumber();
+    long getCurrentSequenceNumber();
 }

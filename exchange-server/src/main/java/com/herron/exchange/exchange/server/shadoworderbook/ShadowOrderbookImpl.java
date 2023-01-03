@@ -16,14 +16,16 @@ public class ShadowOrderbookImpl implements ShadowOrderbook {
     private StateChangeTypeEnum stateChangeTypeEnum = StateChangeTypeEnum.INVALID_STATE_CHANGE;
     private final OrderbookData orderbookData;
     private final ActiveOrders activeOrders;
-    private final AtomicLong latestSequenceNumber = new AtomicLong(1);
+    private final AtomicLong currentSequenceNumber = new AtomicLong(1);
+
+    private OrderbookSnapshot orderbookSnapshot;
 
     public ShadowOrderbookImpl(OrderbookData orderbookData) {
         this.orderbookData = orderbookData;
         this.activeOrders = new ActiveOrders(new ShadowOrderBookComparator());
     }
 
-    public long updateOrderbook(Order order) {
+    public synchronized long updateOrderbook(Order order) {
         if (order.isActiveOrder()) {
             switch (order.orderOperation()) {
                 case CREATE -> addOrder(order);
@@ -31,7 +33,9 @@ public class ShadowOrderbookImpl implements ShadowOrderbook {
                 case DELETE -> removeOrder(order);
             }
         }
-        return latestSequenceNumber.incrementAndGet();
+
+        orderbookSnapshot = new OrderbookSnapshot(currentSequenceNumber.getAndIncrement(), activeOrders.getBidOrders(), activeOrders.getAskOrders());
+        return orderbookSnapshot.sequenceNumber();
     }
 
     private void updateOrder(Order order) {
@@ -157,12 +161,12 @@ public class ShadowOrderbookImpl implements ShadowOrderbook {
 
     @Override
     public OrderbookSnapshot getOrderbookSnapshot() {
-        return new OrderbookSnapshot(latestSequenceNumber.get(), activeOrders.getBidOrders(), activeOrders.getAskOrders());
+        return orderbookSnapshot;
     }
 
     @Override
-    public long getLatestSequenceNumber() {
-        return latestSequenceNumber.get();
+    public long getCurrentSequenceNumber() {
+        return currentSequenceNumber.get();
     }
 
     @Override
