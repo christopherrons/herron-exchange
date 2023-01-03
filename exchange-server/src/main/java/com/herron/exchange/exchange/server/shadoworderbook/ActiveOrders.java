@@ -5,10 +5,7 @@ import com.herron.exchange.common.api.common.enums.OrderSideEnum;
 import com.herron.exchange.common.api.common.enums.OrderTypeEnum;
 import com.herron.exchange.exchange.server.shadoworderbook.model.PriceLevel;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -228,6 +225,14 @@ public class ActiveOrders {
             }
         }
         return false;
+    }
+
+    public List<Order> getBidOrders() {
+        return bidPriceToPriceLevel.values().stream().flatMap(PriceLevel::getOrderStream).toList();
+    }
+
+    public List<Order> getAskOrders() {
+        return askPriceToPriceLevel.values().stream().flatMap(PriceLevel::getOrderStream).toList();
     }
 
 }

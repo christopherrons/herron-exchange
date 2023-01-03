@@ -72,11 +72,14 @@ dependencies {
 	// External Libs
 	implementation(libs.spring.boot.starter.web)
 	implementation(libs.spring.boot.starter.parent)
+	implementation(libs.spring.websocket)
+	implementation(libs.spring.messaging)
 	implementation(libs.spring.kafka)
 	implementation(libs.tyrus.standalone.client)
 	implementation(libs.javax.json.api)
 	implementation(libs.javax.json)
 	implementation(libs.javafaker)
+	implementation(libs.org.springdoc)
 
 	// External Test Libs
 	testImplementation(testlibs.junit.jupiter.api)

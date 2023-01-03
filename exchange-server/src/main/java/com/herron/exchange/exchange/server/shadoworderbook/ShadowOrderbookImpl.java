@@ -9,22 +9,21 @@ import com.herron.exchange.exchange.server.shadoworderbook.api.ShadowOrderbook;
 import com.herron.exchange.exchange.server.shadoworderbook.comparator.ShadowOrderBookComparator;
 import com.herron.exchange.exchange.server.shadoworderbook.model.OrderbookSnapshot;
 
-import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ShadowOrderbookImpl implements ShadowOrderbook {
 
     private StateChangeTypeEnum stateChangeTypeEnum = StateChangeTypeEnum.INVALID_STATE_CHANGE;
     private final OrderbookData orderbookData;
     private final ActiveOrders activeOrders;
-
-    private long latestSequenceNumber;
+    private final AtomicLong latestSequenceNumber = new AtomicLong(1);
 
     public ShadowOrderbookImpl(OrderbookData orderbookData) {
         this.orderbookData = orderbookData;
         this.activeOrders = new ActiveOrders(new ShadowOrderBookComparator());
     }
 
-    public void updateOrderbook(Order order) {
+    public long updateOrderbook(Order order) {
         if (order.isActiveOrder()) {
             switch (order.orderOperation()) {
                 case CREATE -> addOrder(order);
@@ -32,6 +31,7 @@ public class ShadowOrderbookImpl implements ShadowOrderbook {
                 case DELETE -> removeOrder(order);
             }
         }
+        return latestSequenceNumber.incrementAndGet();
     }
 
     private void updateOrder(Order order) {
@@ -157,7 +157,12 @@ public class ShadowOrderbookImpl implements ShadowOrderbook {
 
     @Override
     public OrderbookSnapshot getOrderbookSnapshot() {
-        return new OrderbookSnapshot(latestSequenceNumber, List.of(), List.of());
+        return new OrderbookSnapshot(latestSequenceNumber.get(), activeOrders.getBidOrders(), activeOrders.getAskOrders());
+    }
+
+    @Override
+    public long getLatestSequenceNumber() {
+        return latestSequenceNumber.get();
     }
 
     @Override

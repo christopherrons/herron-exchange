@@ -8,7 +8,7 @@ import com.herron.exchange.exchange.server.shadoworderbook.model.OrderbookSnapsh
 
 public interface ShadowOrderbook {
 
-    void updateOrderbook(Order order);
+    long updateOrderbook(Order order);
 
     void updateState(StateChange stateChange);
 
@@ -57,4 +57,6 @@ public interface ShadowOrderbook {
     double getBidPriceAtPriceLevel(int priceLevel);
 
     OrderbookSnapshot getOrderbookSnapshot();
+
+    long getLatestSequenceNumber();
 }

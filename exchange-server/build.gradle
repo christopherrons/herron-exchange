@@ -6,6 +6,9 @@ dependencies {
     implementation(libs.javax.json)
     implementation(libs.javafaker)
     implementation(libs.spring.kafka)
+    implementation(libs.spring.websocket)
+    implementation(libs.spring.messaging)
+    implementation(libs.org.springdoc)
 
     // Internal Libs
     implementation(libs.common.api)

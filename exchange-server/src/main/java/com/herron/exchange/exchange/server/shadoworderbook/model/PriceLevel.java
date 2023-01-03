@@ -5,6 +5,7 @@ import com.herron.exchange.common.api.common.api.Order;
 import java.util.Comparator;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class PriceLevel extends TreeSet<Order> {
 
@@ -32,6 +33,10 @@ public class PriceLevel extends TreeSet<Order> {
                 .filter(filter)
                 .mapToDouble(Order::currentVolume)
                 .sum();
+    }
+
+    public Stream<Order> getOrderStream() {
+        return stream();
     }
 
 }
