@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Exchange {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Exchange.class);
     private static final PartitionKey DEFAULT_PARTITION_KEY = new PartitionKey(TopicEnum.HERRON_AUDIT_TRAIL, 1);
     private final Map<PartitionKey, ShadowOrderbookHandler> partitionKeyToMatchingEngine = new ConcurrentHashMap<>();

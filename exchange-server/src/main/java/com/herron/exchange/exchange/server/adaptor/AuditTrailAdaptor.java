@@ -23,7 +23,7 @@ public class AuditTrailAdaptor {
     private static final PartitionKey PARTITION_ZERO_KEY = new PartitionKey(TopicEnum.HERRON_AUDIT_TRAIL, 0);
     private static final PartitionKey PARTITION_ONE_KEY = new PartitionKey(TopicEnum.HERRON_AUDIT_TRAIL, 1);
     private final Exchange exchange;
-    private final Map<Integer, AtomicLong> partitionToSequenceNumberHandler = new ConcurrentHashMap<>();
+    private final Map<PartitionKey, AtomicLong> partitionToSequenceNumberHandler = new ConcurrentHashMap<>();
 
     public AuditTrailAdaptor(Exchange exchange) {
         this.exchange = exchange;
@@ -32,45 +32,37 @@ public class AuditTrailAdaptor {
     @KafkaListener(id = "audit-trail-listener-one", topicPartitions = {@TopicPartition(topic = "herron-audit-trail",
             partitionOffsets = @PartitionOffset(partition = "0", initialOffset = "0"))})
     public void listenBitstampMarketDataOne(ConsumerRecord<String, String> consumerRecord) {
-        queueMessage(consumerRecord);
+        queueMessage(consumerRecord, PARTITION_ZERO_KEY);
     }
 
     @KafkaListener(id = "audit-trail-listener-two", topicPartitions = {@TopicPartition(topic = "herron-audit-trail",
             partitionOffsets = @PartitionOffset(partition = "1", initialOffset = "0"))})
     public void listenBitstampMarketDataTwo(ConsumerRecord<String, String> consumerRecord) {
-        queueMessage(consumerRecord);
+        queueMessage(consumerRecord, PARTITION_ONE_KEY);
     }
 
-    private void queueMessage(ConsumerRecord<String, String> consumerRecord) {
+    private void queueMessage(ConsumerRecord<String, String> consumerRecord, PartitionKey partitionKey) {
         BroadcastMessage broadcastMessage = (BroadcastMessage) deserializeMessage(consumerRecord.key(), consumerRecord.value());
         if (broadcastMessage == null || broadcastMessage.serialize().isEmpty()) {
             LOGGER.warn("Unable to map message: {}", consumerRecord);
             return;
         }
 
-        long expected = getSequenceNumber(consumerRecord.partition());
+        long expected = getSequenceNumber(partitionKey);
         if (broadcastMessage.sequenceNumber() != expected) {
             LOGGER.warn("GAP detected: Expected={}, Incoming={}", expected, broadcastMessage.sequenceNumber());
         }
 
         try {
             Message message = broadcastMessage.message();
-            exchange.queueMessage(getPartitionKey(consumerRecord.partition()), message);
+            exchange.queueMessage(partitionKey, message);
         } catch (Exception e) {
             LOGGER.warn("Unhandled exception for record: {}, decoded-message: {}, {}", consumerRecord, broadcastMessage, e);
         }
     }
 
-    private long getSequenceNumber(int partition) {
-        return partitionToSequenceNumberHandler.computeIfAbsent(partition, k -> new AtomicLong(1)).getAndIncrement();
-    }
-
-    private PartitionKey getPartitionKey(int partition) {
-        if (partition == 0) {
-            return PARTITION_ZERO_KEY;
-        } else {
-            return PARTITION_ONE_KEY;
-        }
+    private long getSequenceNumber(PartitionKey partitionKey) {
+        return partitionToSequenceNumberHandler.computeIfAbsent(partitionKey, k -> new AtomicLong(1)).getAndIncrement();
     }
 
 }
