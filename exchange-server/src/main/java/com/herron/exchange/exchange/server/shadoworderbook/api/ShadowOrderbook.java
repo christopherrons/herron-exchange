@@ -4,8 +4,9 @@ import com.herron.exchange.common.api.common.api.Order;
 import com.herron.exchange.common.api.common.api.StateChange;
 import com.herron.exchange.common.api.common.enums.MatchingAlgorithmEnum;
 import com.herron.exchange.common.api.common.enums.StateChangeTypeEnum;
+import com.herron.exchange.exchange.server.shadoworderbook.model.OrderbookSnapshot;
 
-public interface Orderbook {
+public interface ShadowOrderbook {
 
     void updateOrderbook(Order order);
 
@@ -54,4 +55,6 @@ public interface Orderbook {
     double getAskPriceAtPriceLevel(int priceLevel);
 
     double getBidPriceAtPriceLevel(int priceLevel);
+
+    OrderbookSnapshot getOrderbookSnapshot();
 }

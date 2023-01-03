@@ -2,8 +2,8 @@ package com.herron.exchange.exchange.server.shadoworderbook.cache;
 
 import com.herron.exchange.common.api.common.api.OrderbookData;
 import com.herron.exchange.common.api.common.api.StateChange;
-import com.herron.exchange.exchange.server.shadoworderbook.ShadowOrderbook;
-import com.herron.exchange.exchange.server.shadoworderbook.api.Orderbook;
+import com.herron.exchange.exchange.server.shadoworderbook.ShadowOrderbookImpl;
+import com.herron.exchange.exchange.server.shadoworderbook.api.ShadowOrderbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,13 +13,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OrderbookCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderbookCache.class);
 
-    private final Map<String, Orderbook> orderbookIdToOrderBook = new ConcurrentHashMap<>();
+    private final Map<String, ShadowOrderbook> orderbookIdToOrderBook = new ConcurrentHashMap<>();
 
     public void createOrderbook(OrderbookData orderbookData) {
-        orderbookIdToOrderBook.computeIfAbsent(orderbookData.orderbookId(), k -> new ShadowOrderbook(orderbookData));
+        orderbookIdToOrderBook.computeIfAbsent(orderbookData.orderbookId(), k -> new ShadowOrderbookImpl(orderbookData));
     }
 
-    public Orderbook getOrderbook(String orderbookId) {
+    public ShadowOrderbook getOrderbook(String orderbookId) {
         if (orderbookIdToOrderBook.containsKey(orderbookId)) {
             return orderbookIdToOrderBook.get(orderbookId);
         }

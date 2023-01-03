@@ -5,16 +5,21 @@ import com.herron.exchange.common.api.common.api.OrderbookData;
 import com.herron.exchange.common.api.common.api.StateChange;
 import com.herron.exchange.common.api.common.enums.MatchingAlgorithmEnum;
 import com.herron.exchange.common.api.common.enums.StateChangeTypeEnum;
-import com.herron.exchange.exchange.server.shadoworderbook.api.Orderbook;
+import com.herron.exchange.exchange.server.shadoworderbook.api.ShadowOrderbook;
 import com.herron.exchange.exchange.server.shadoworderbook.comparator.ShadowOrderBookComparator;
+import com.herron.exchange.exchange.server.shadoworderbook.model.OrderbookSnapshot;
 
-public class ShadowOrderbook implements Orderbook {
+import java.util.List;
+
+public class ShadowOrderbookImpl implements ShadowOrderbook {
 
     private StateChangeTypeEnum stateChangeTypeEnum = StateChangeTypeEnum.INVALID_STATE_CHANGE;
     private final OrderbookData orderbookData;
     private final ActiveOrders activeOrders;
 
-    public ShadowOrderbook(OrderbookData orderbookData) {
+    private long latestSequenceNumber;
+
+    public ShadowOrderbookImpl(OrderbookData orderbookData) {
         this.orderbookData = orderbookData;
         this.activeOrders = new ActiveOrders(new ShadowOrderBookComparator());
     }
@@ -148,6 +153,11 @@ public class ShadowOrderbook implements Orderbook {
     @Override
     public double getBidPriceAtPriceLevel(int priceLevel) {
         return activeOrders.getBidPriceAtPriceLevel(priceLevel);
+    }
+
+    @Override
+    public OrderbookSnapshot getOrderbookSnapshot() {
+        return new OrderbookSnapshot(latestSequenceNumber, List.of(), List.of());
     }
 
     @Override

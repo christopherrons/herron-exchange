@@ -25,11 +25,12 @@ public class Exchange {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void queueMessage(Message message) {
-        queueMessage(DEFAULT_PARTITION_KEY, message);
+    public void queueMessage(BroadcastMessage broadcastMessage) {
+        queueMessage(DEFAULT_PARTITION_KEY, broadcastMessage);
     }
 
-    public void queueMessage(PartitionKey partitionKey, Message message) {
+    public void queueMessage(PartitionKey partitionKey, BroadcastMessage broadcastMessage) {
+        Message message = broadcastMessage.message();
         if (message instanceof Order order) {
             partitionKeyToMatchingEngine.computeIfAbsent(partitionKey, k -> new ShadowOrderbookHandler(partitionKey, orderbookCache)).queueMessage(order);
         } else if (message instanceof OrderbookData orderbookData) {

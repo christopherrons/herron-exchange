@@ -54,8 +54,7 @@ public class AuditTrailAdaptor {
         }
 
         try {
-            Message message = broadcastMessage.message();
-            exchange.queueMessage(partitionKey, message);
+            exchange.queueMessage(partitionKey, broadcastMessage);
         } catch (Exception e) {
             LOGGER.warn("Unhandled exception for record: {}, decoded-message: {}, {}", consumerRecord, broadcastMessage, e);
         }

@@ -3,7 +3,7 @@ package com.herron.exchange.exchange.server.shadoworderbook;
 import com.herron.exchange.common.api.common.api.Order;
 import com.herron.exchange.common.api.common.model.PartitionKey;
 import com.herron.exchange.common.api.common.wrappers.ThreadWrapper;
-import com.herron.exchange.exchange.server.shadoworderbook.api.Orderbook;
+import com.herron.exchange.exchange.server.shadoworderbook.api.ShadowOrderbook;
 import com.herron.exchange.exchange.server.shadoworderbook.cache.OrderbookCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class ShadowOrderbookHandler {
             }
 
             try {
-                Orderbook orderbook = orderbookCache.getOrderbook(order.orderbookId());
+                ShadowOrderbook orderbook = orderbookCache.getOrderbook(order.orderbookId());
                 if (orderbook != null) {
                     orderbook.updateOrderbook(orderQueue.poll());
                 }
