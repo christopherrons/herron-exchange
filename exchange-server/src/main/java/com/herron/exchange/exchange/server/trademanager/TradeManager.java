@@ -1,6 +1,6 @@
 package com.herron.exchange.exchange.server.trademanager;
 
-import com.herron.exchange.common.api.common.api.Trade;
+import com.herron.exchange.common.api.common.api.trading.trades.Trade;
 import com.herron.exchange.exchange.server.websocket.WebSocketDataStreamManager;
 
 import java.util.concurrent.atomic.AtomicLong;

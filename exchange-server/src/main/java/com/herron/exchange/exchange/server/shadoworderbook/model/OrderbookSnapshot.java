@@ -1,6 +1,7 @@
 package com.herron.exchange.exchange.server.shadoworderbook.model;
 
-import com.herron.exchange.common.api.common.api.Order;
+
+import com.herron.exchange.common.api.common.api.trading.orders.Order;
 
 import java.util.List;
 

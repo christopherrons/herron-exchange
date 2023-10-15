@@ -1,7 +1,8 @@
 package com.herron.exchange.exchange.server.websocket;
 
-import com.herron.exchange.common.api.common.api.Order;
-import com.herron.exchange.common.api.common.api.Trade;
+
+import com.herron.exchange.common.api.common.api.trading.orders.Order;
+import com.herron.exchange.common.api.common.api.trading.trades.Trade;
 import com.herron.exchange.common.api.common.enums.WebSocketTopicEnum;
 import com.herron.exchange.exchange.server.websocket.model.DataStream;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

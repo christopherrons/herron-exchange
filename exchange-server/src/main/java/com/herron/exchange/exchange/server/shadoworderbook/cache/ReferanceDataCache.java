@@ -1,7 +1,8 @@
 package com.herron.exchange.exchange.server.shadoworderbook.cache;
 
-import com.herron.exchange.common.api.common.api.Instrument;
-import com.herron.exchange.common.api.common.api.OrderbookData;
+
+import com.herron.exchange.common.api.common.api.referencedata.instruments.Instrument;
+import com.herron.exchange.common.api.common.api.referencedata.orderbook.OrderbookData;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

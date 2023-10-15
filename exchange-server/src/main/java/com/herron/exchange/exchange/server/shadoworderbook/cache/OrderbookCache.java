@@ -1,7 +1,7 @@
 package com.herron.exchange.exchange.server.shadoworderbook.cache;
 
-import com.herron.exchange.common.api.common.api.OrderbookData;
-import com.herron.exchange.common.api.common.api.StateChange;
+import com.herron.exchange.common.api.common.api.referencedata.orderbook.OrderbookData;
+import com.herron.exchange.common.api.common.api.trading.statechange.StateChange;
 import com.herron.exchange.exchange.server.shadoworderbook.ShadowOrderbookImpl;
 import com.herron.exchange.exchange.server.shadoworderbook.api.ShadowOrderbook;
 import org.slf4j.Logger;

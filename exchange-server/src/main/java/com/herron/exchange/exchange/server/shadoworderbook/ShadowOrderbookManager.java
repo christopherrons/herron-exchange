@@ -1,6 +1,6 @@
 package com.herron.exchange.exchange.server.shadoworderbook;
 
-import com.herron.exchange.common.api.common.api.Order;
+import com.herron.exchange.common.api.common.api.trading.orders.Order;
 import com.herron.exchange.exchange.server.rest.orderbook.OrderbookSnapshotDto;
 import com.herron.exchange.exchange.server.rest.orderbook.OrderbookSnapshotRestRequest;
 import com.herron.exchange.exchange.server.rest.orderbook.api.OrderbookRestRequest;
