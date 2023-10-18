@@ -3,7 +3,7 @@ package com.herron.exchange.exchange.server.shadoworderbook.api;
 import com.herron.exchange.common.api.common.api.trading.orders.Order;
 import com.herron.exchange.common.api.common.api.trading.statechange.StateChange;
 import com.herron.exchange.common.api.common.enums.MatchingAlgorithmEnum;
-import com.herron.exchange.common.api.common.enums.StateChangeTypeEnum;
+import com.herron.exchange.common.api.common.enums.TradingStatesEnum;
 import com.herron.exchange.exchange.server.shadoworderbook.model.OrderbookSnapshot;
 
 public interface ShadowOrderbook {
@@ -12,7 +12,7 @@ public interface ShadowOrderbook {
 
     void updateState(StateChange stateChange);
 
-    StateChangeTypeEnum getState();
+    TradingStatesEnum getState();
 
     String getOrderbookId();
 
