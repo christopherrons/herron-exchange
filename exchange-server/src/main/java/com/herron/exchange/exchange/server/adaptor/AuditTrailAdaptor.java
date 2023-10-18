@@ -1,9 +1,9 @@
 package com.herron.exchange.exchange.server.adaptor;
 
-import com.herron.exchange.common.api.common.api.BroadcastMessage;
 import com.herron.exchange.common.api.common.api.Message;
+import com.herron.exchange.common.api.common.api.broadcasts.BroadcastMessage;
 import com.herron.exchange.common.api.common.enums.KafkaTopicEnum;
-import com.herron.exchange.common.api.common.model.PartitionKey;
+import com.herron.exchange.common.api.common.messages.common.PartitionKey;
 import com.herron.exchange.exchange.server.Exchange;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -16,12 +16,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.herron.exchange.common.api.common.enums.MessageTypesEnum.deserializeMessage;
 
 public class AuditTrailAdaptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditTrailAdaptor.class);
-    private static final PartitionKey PARTITION_ZERO_KEY = new PartitionKey(KafkaTopicEnum.HERRON_AUDIT_TRAIL, 0);
-    private static final PartitionKey PARTITION_ONE_KEY = new PartitionKey(KafkaTopicEnum.HERRON_AUDIT_TRAIL, 1);
+    private static final PartitionKey PARTITION_ZERO_KEY = new PartitionKey(KafkaTopicEnum.AUDIT_TRAIL, 0);
+    private static final PartitionKey PARTITION_ONE_KEY = new PartitionKey(KafkaTopicEnum.AUDIT_TRAIL, 1);
     private final Exchange exchange;
     private final Map<PartitionKey, AtomicLong> partitionToSequenceNumberHandler = new ConcurrentHashMap<>();
 

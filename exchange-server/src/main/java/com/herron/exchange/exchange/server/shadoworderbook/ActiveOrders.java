@@ -1,6 +1,6 @@
 package com.herron.exchange.exchange.server.shadoworderbook;
 
-import com.herron.exchange.common.api.common.api.Order;
+import com.herron.exchange.common.api.common.api.trading.orders.Order;
 import com.herron.exchange.common.api.common.enums.OrderSideEnum;
 import com.herron.exchange.common.api.common.enums.OrderTypeEnum;
 import com.herron.exchange.exchange.server.shadoworderbook.model.PriceLevel;
