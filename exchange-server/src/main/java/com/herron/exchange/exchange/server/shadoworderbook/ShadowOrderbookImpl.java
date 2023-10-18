@@ -4,7 +4,7 @@ import com.herron.exchange.common.api.common.api.referencedata.orderbook.Orderbo
 import com.herron.exchange.common.api.common.api.trading.orders.Order;
 import com.herron.exchange.common.api.common.api.trading.statechange.StateChange;
 import com.herron.exchange.common.api.common.enums.MatchingAlgorithmEnum;
-import com.herron.exchange.common.api.common.enums.StateChangeTypeEnum;
+import com.herron.exchange.common.api.common.enum.StateChangeTypeEnum;
 import com.herron.exchange.exchange.server.shadoworderbook.api.ShadowOrderbook;
 import com.herron.exchange.exchange.server.shadoworderbook.comparator.ShadowOrderBookComparator;
 import com.herron.exchange.exchange.server.shadoworderbook.model.OrderbookSnapshot;
