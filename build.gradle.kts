@@ -7,21 +7,14 @@ plugins {
 }
 
 springBoot {
-	mainClass.set("com.herron.exchange.exchange.server.ExchangeApplication")
+	mainClass.set("com.herron.exchange.exchangeengine.server.ExchangeApplication")
 }
 
 // Project Configs
 allprojects {
 	repositories {
 		mavenLocal()
-		maven {
-			name = "bytesafe"
-			url = uri("https://herron.bytesafe.dev/maven/herron/")
-			credentials {
-				username = extra["username"] as String?
-				password = extra["password"] as String?
-			}
-		}
+		mavenCentral()
 	}
 
 	apply(plugin = "maven-publish")
@@ -47,14 +40,7 @@ allprojects {
 				from(components["java"])
 			}
 			repositories {
-				maven {
-					name = "bytesafe"
-					url = uri("https://herron.bytesafe.dev/maven/herron/")
-					credentials {
-						username = extra["username"] as String?
-						password = extra["password"] as String?
-					}
-				}
+				mavenLocal()
 			}
 		}
 	}

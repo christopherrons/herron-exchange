@@ -1,3 +1,19 @@
-spring:
-  kafka:
-    bootstrap-servers: "exchange-1.int.herron.se:9092"
+server:
+  port: 8087
+
+kafka:
+  bootstrap-servers: "localhost:9092"
+  consumer:
+    config:
+      - offset: 0
+        partition: 0
+        event-logging: 10000
+        topic: "top-of-book-quote"
+      - offset: 0
+        partition: 0
+        event-logging: 100000
+        topic: "audit-trail"
+      - offset: 0
+        partition: 0
+        event-logging: 1000
+        topic: "reference-data"
