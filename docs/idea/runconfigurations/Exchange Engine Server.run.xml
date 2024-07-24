@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Exchange Engine Server" type="Application" factoryName="Application" singleton="true">
+    <option name="ALTERNATIVE_JRE_PATH" value="17" />
+    <option name="MAIN_CLASS_NAME" value="com.herron.exchange.exchangeengine.server.ExchangeEngineApplication" />
+    <module name="exchange.exchange-server.main" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/herron-exchange/exchange-deploy" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

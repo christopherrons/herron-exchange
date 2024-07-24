@@ -12,7 +12,7 @@
 
     <appender name="RollingFile"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOGS}/exchange.log</file>
+        <file>${LOGS}/exchange-engine.log</file>
         <encoder
                 class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d{HH:mm:ss.SSS} %-5level [%thread]  %logger - %msg%n</Pattern>
@@ -21,7 +21,7 @@
         <!-- rollover daily or when the file reaches 1000000MB MegaBytes -->
         <rollingPolicy
                 class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS}/archived/exchange-%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>${LOGS}/archived/exchange-engine-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">

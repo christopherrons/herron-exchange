@@ -46,7 +46,7 @@ public class AuditTrailConsumer extends DataConsumer implements KafkaMessageHand
 
         } else if (message instanceof DataStreamState state) {
             switch (state.state()) {
-                case START -> logger.info("Started consuming top of book.");
+                case START -> logger.info("Started consuming audit trail.");
                 case DONE -> {
                     consumerClient.stop(broadcastMessage.partitionKey());
                     countDownLatch.countDown();

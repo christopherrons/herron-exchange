@@ -1,5 +1,6 @@
 rootProject.name = "exchange"
 include("exchange-deploy")
+include("exchange-server")
 
 dependencyResolutionManagement {
     versionCatalogs {
@@ -9,13 +10,8 @@ dependencyResolutionManagement {
             library("spring.websocket", "org.springframework:spring-websocket:6.0.3")
             library("spring.messaging", "org.springframework:spring-messaging:6.0.3")
             library("spring.kafka", "org.springframework.kafka:spring-kafka:3.0.1")
-            library("tyrus.standalone.client", "org.glassfish.tyrus.bundles:tyrus-standalone-client:1.18")
-            library("javax.json.api", "javax.json:javax.json-api:1.1.4")
-            library("javax.json", "org.glassfish:javax.json:1.1.4")
-            library("javafaker", "com.github.javafaker:javafaker:1.0.2")
             library("common.api", "com.herron.exchange:common-api:1.0.0-SNAPSHOT")
             library("common", "com.herron.exchange:common:1.0.0-SNAPSHOT")
-            library("org.springdoc", "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.0")
         }
 
         create("testlibs") {
@@ -26,4 +22,3 @@ dependencyResolutionManagement {
         }
     }
 }
-include("exchange-server")
