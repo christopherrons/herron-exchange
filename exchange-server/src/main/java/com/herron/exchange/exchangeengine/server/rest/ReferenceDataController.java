@@ -19,10 +19,9 @@ public class ReferenceDataController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceDataController.class);
 
-
     @GetMapping("/availableOrderbookIds")
     public Set<String> getOrderbookIds() {
-        LOGGER.info("Get request available instruments received.");
+        LOGGER.info("Get request available orderbooks received.");
         return ReferenceDataCache.getCache().getOrderbookData().stream().map(OrderbookData::orderbookId).collect(Collectors.toSet());
     }
 }
