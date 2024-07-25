@@ -8,6 +8,7 @@ import com.herron.exchange.exchangeengine.server.ExchangeEngineBootloader;
 import com.herron.exchange.exchangeengine.server.consumers.AuditTrailConsumer;
 import com.herron.exchange.exchangeengine.server.consumers.ReferenceDataConsumer;
 import com.herron.exchange.exchangeengine.server.consumers.TopOfBookConsumer;
+import com.herron.exchange.exchangeengine.server.websocket.TradingEventStreamingService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,8 +23,8 @@ public class ExchangeEngineConfig {
     }
 
     @Bean
-    public ExchangeEngine exchangeEngine() {
-        return new ExchangeEngine();
+    public ExchangeEngine exchangeEngine(TradingEventStreamingService tradingEventStreamingService) {
+        return new ExchangeEngine(tradingEventStreamingService);
     }
 
     @Bean

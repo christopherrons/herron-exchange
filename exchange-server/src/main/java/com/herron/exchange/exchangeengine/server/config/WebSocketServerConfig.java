@@ -1,6 +1,5 @@
 package com.herron.exchange.exchangeengine.server.config;
 
-import com.herron.exchange.common.api.common.enums.KafkaTopicEnum;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -19,7 +18,6 @@ public class WebSocketServerConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/" + KafkaTopicEnum.AUDIT_TRAIL.getTopicName()).setAllowedOriginPatterns("*").withSockJS();
-        registry.addEndpoint("/" + KafkaTopicEnum.TOP_OF_BOOK_QUOTE.getTopicName()).setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/exchange").setAllowedOriginPatterns("*").withSockJS();
     }
 }

@@ -2,7 +2,6 @@ package com.herron.exchange.exchangeengine.server.consumers;
 
 import com.herron.exchange.common.api.common.api.Message;
 import com.herron.exchange.common.api.common.api.kafka.KafkaMessageHandler;
-import com.herron.exchange.common.api.common.api.trading.Order;
 import com.herron.exchange.common.api.common.consumer.DataConsumer;
 import com.herron.exchange.common.api.common.kafka.KafkaConsumerClient;
 import com.herron.exchange.common.api.common.kafka.model.KafkaSubscriptionDetails;
@@ -10,7 +9,6 @@ import com.herron.exchange.common.api.common.kafka.model.KafkaSubscriptionReques
 import com.herron.exchange.common.api.common.messages.BroadcastMessage;
 import com.herron.exchange.common.api.common.messages.common.DataStreamState;
 import com.herron.exchange.common.api.common.messages.trading.PriceQuote;
-import com.herron.exchange.common.api.common.messages.trading.TradeExecution;
 import com.herron.exchange.exchangeengine.server.ExchangeEngine;
 
 import java.util.List;
@@ -40,7 +38,7 @@ public class TopOfBookConsumer extends DataConsumer implements KafkaMessageHandl
     public void onMessage(BroadcastMessage broadcastMessage) {
         Message message = broadcastMessage.message();
         if (message instanceof PriceQuote priceQuote) {
-            //TODO: add
+            exchangeEngine.handleOrderbookEvents(priceQuote);
 
         } else if (message instanceof DataStreamState state) {
             switch (state.state()) {

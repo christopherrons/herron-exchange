@@ -13,7 +13,7 @@ public class ExchangeEngineBootloader extends Bootloader {
     public ExchangeEngineBootloader(ReferenceDataConsumer referenceDataConsumer,
                                     TopOfBookConsumer topOfBookConsumer,
                                     AuditTrailConsumer auditTrailConsumer) {
-        super("ExchangeEngine");
+        super("Exchange Engine");
         this.referenceDataConsumer = referenceDataConsumer;
         this.topOfBookConsumer = topOfBookConsumer;
         this.auditTrailConsumer = auditTrailConsumer;

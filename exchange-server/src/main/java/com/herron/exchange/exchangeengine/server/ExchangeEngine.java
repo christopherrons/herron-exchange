@@ -1,16 +1,17 @@
 package com.herron.exchange.exchangeengine.server;
 
-import com.herron.exchange.common.api.common.api.trading.Order;
-import com.herron.exchange.common.api.common.messages.trading.TradeExecution;
+import com.herron.exchange.common.api.common.api.trading.OrderbookEvent;
+import com.herron.exchange.exchangeengine.server.websocket.TradingEventStreamingService;
 
 public class ExchangeEngine {
 
+    private final TradingEventStreamingService tradingEventStreamingService;
 
-    public void publishOrders(Order order) {
-
+    public ExchangeEngine(TradingEventStreamingService tradingEventStreamingService) {
+        this.tradingEventStreamingService = tradingEventStreamingService;
     }
 
-    public void publishTradeExecution(TradeExecution tradeExecution) {
-
+    public void handleOrderbookEvents(OrderbookEvent orderbookEvent) {
+        tradingEventStreamingService.streamOrderbookEvents(orderbookEvent);
     }
 }

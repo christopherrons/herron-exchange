@@ -36,3 +36,4 @@ logs
 log
 ### VS Code ###
 .vscode/
+.venv
