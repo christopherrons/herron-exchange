@@ -2,6 +2,7 @@ package com.herron.exchange.exchangeengine.server.websocket;
 
 import com.herron.exchange.common.api.common.api.trading.OrderbookEvent;
 import com.herron.exchange.common.api.common.messages.trading.PriceQuote;
+import com.herron.exchange.common.api.common.messages.trading.TradeExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -9,7 +10,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import static com.herron.exchange.exchangeengine.server.websocket.ExchangeWebsocketTopics.*;
 
 public class TradingEventStreamingService {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(TradingEventStreamingService.class);
     private final SimpMessagingTemplate messagingTemplate;
     private final SubscriptionService subscriptionService;
@@ -32,6 +32,9 @@ public class TradingEventStreamingService {
             return;
         }
 
-        messagingTemplate.convertAndSend(topic, orderbookEvent);
+        switch (orderbookEvent) {
+            case TradeExecution tradeExecution -> tradeExecution.messages().forEach(event -> messagingTemplate.convertAndSend(topic, event));
+            default -> messagingTemplate.convertAndSend(topic, orderbookEvent);
+        }
     }
 }
