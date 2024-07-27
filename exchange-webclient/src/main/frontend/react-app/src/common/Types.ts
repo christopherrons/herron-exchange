@@ -48,6 +48,14 @@ export interface Trade extends OrderbookEvent {
   price: Price;
 }
 
+export interface Quote extends OrderbookEvent {}
+
+export interface PriceQuote extends Quote {
+  price: Price;
+  side: string;
+}
+
+
 export interface TimeOfEvent {
   timeStampMs: number;
   zoneId: string;

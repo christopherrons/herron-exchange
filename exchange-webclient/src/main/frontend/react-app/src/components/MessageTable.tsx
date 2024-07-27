@@ -11,33 +11,33 @@ interface Props {
 function MessageTable({ items, heading, columnHeaders, tableExtractor }: Props) {
   return (
     <>
-      <h1>{heading}</h1>
+      <h4>{heading}</h4>
       {items.length > 0 && (
-        <table className="table">
-          <thead>
-            <tr>
-              {columnHeaders.map((header) => (
-                <th scope="col" key={header}>
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, index) => {
-              const rowData = tableExtractor(item);
-              return (
-                <tr key={item["@type"] + index}>
-                  {rowData.map((data, i) => (
-                    <td scope="row" key={i}>
-                      {data}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="tableContainer">
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                {columnHeaders.map((header) => (
+                  <th scope="col" key={header}>
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => {
+                const rowData = tableExtractor(item);
+                return (
+                  <tr key={item["@type"] + index}>
+                    {rowData.map((data, i) => (
+                      <td key={i}>{data}</td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );

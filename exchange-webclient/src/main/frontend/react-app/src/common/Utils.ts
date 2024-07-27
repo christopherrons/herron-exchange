@@ -16,6 +16,10 @@ export const isStateChange = (message: Message): boolean => {
   return message["@type"] === "STCH";
 };
 
+export const isPriceQuote = (message: Message): boolean => {
+  return message["@type"] === "PRQU";
+};
+
 export const formatTime = (event: TimeOfEvent): string => {
   const { timeStampMs, zoneId } = event;
 

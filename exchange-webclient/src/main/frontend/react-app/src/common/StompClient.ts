@@ -3,22 +3,24 @@ import { Client, IMessage } from "@stomp/stompjs";
 import { Message } from "./Types";
 
 interface Props {
-  topic: string;
+  topics: string[];
   handleMessage: (message: Message) => void;
 }
 
-export const stompSubcription = ({ topic, handleMessage }: Props) => {
+export const stompSubcription = ({ topics, handleMessage }: Props) => {
   const sockJS = new SockJS("http://localhost:8087/exchange");
   const client = new Client({
     webSocketFactory: () => sockJS,
     onConnect: () => {
       console.log("Connected to STOMP broker");
 
-      client.subscribe(topic, (message: IMessage) => {
-        console.log("Subscribe to topic" + topic);
-        const messageBody: Message = JSON.parse(message.body);
-        handleMessage(messageBody);
-      });
+      topics.forEach((topic: string) => {
+        client.subscribe(topic, (message: IMessage) => {
+          console.log("Subscribe to topic" + topic);
+          const messageBody: Message = JSON.parse(message.body);
+          handleMessage(messageBody);
+        });
+      })
     },
     onDisconnect: () => {
       console.log("Disconnected from STOMP broker");

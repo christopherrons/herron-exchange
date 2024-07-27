@@ -2,7 +2,7 @@ package com.herron.exchange.exchangeengine.server.config;
 
 import com.herron.exchange.exchangeengine.server.websocket.SubscriptionInterceptor;
 import com.herron.exchange.exchangeengine.server.websocket.SubscriptionService;
-import com.herron.exchange.exchangeengine.server.websocket.TradingEventStreamingService;
+import com.herron.exchange.exchangeengine.server.websocket.LiveEventStreamingService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -43,7 +43,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Bean
-    public TradingEventStreamingService tradingEventStream(SimpMessagingTemplate messagingTemplate) {
-        return new TradingEventStreamingService(messagingTemplate, subscriptionService());
+    public LiveEventStreamingService tradingEventStream(SimpMessagingTemplate messagingTemplate) {
+        return new LiveEventStreamingService(messagingTemplate, subscriptionService());
     }
 }

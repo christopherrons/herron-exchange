@@ -8,15 +8,15 @@ interface Props {
   orderbook: string;
 }
 
-const headers: string[] = ["Event"];
+const headers: string[] = ["Event", "Time"];
 
-function EventWebSocketTable({ orderbook }: Props) {
+function EventTable({ orderbook }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
     const topic = "/topic/orderbookEvent/" + orderbook;
     stompSubcription({
-      topic: topic,
+      topics: [topic],
       handleMessage: (message) =>
         setMessages((prevMessages) => {
           const newMessages = [message, ...prevMessages];
@@ -26,21 +26,24 @@ function EventWebSocketTable({ orderbook }: Props) {
   }, [orderbook]);
 
   const tableExtractor = (message: Message) => {
-    let cell: string = "";
+    let data: string[] = [];
     if (isOrder(message)) {
       const order: Order = message;
-      cell = formatOrderDetails(order);
+      data.push(formatOrderDetails(order));
+      data.push(formatTime(order.timeOfEvent));
     } else if (isStateChange(message)) {
       const stateChange: StateChange = message;
-      cell = formatStateChangeDetails(stateChange);
+      data.push(formatStateChangeDetails(stateChange));
+      data.push(formatTime(stateChange.timeOfEvent));
     } else if (isTrade(message)) {
       const trade: Trade = message;
-      cell = formatTradeDetails(trade);
+      data.push(formatTradeDetails(trade));
+      data.push(formatTime(trade.timeOfEvent));
     } else {
-      console.log(message);
+      console.log("Message not handled: " + message);
     }
 
-    return [cell];
+    return data;
   };
 
   return (
@@ -57,15 +60,15 @@ function EventWebSocketTable({ orderbook }: Props) {
 
 const formatOrderDetails = (order: Order): string => {
   return `${order.orderSide} Order ${order.orderOperation} 
-      ${order.currentVolume.value}@${order.price.value} ${formatTime(order.timeOfEvent)}`;
+      ${order.currentVolume.value}@${order.price.value}`;
 };
 
 const formatTradeDetails = (trade: Trade): string => {
-  return `Trade ${trade.volume.value}@${trade.price.value} ${formatTime(trade.timeOfEvent)}`;
+  return `Trade ${trade.volume.value}@${trade.price.value}`;
 };
 
 const formatStateChangeDetails = (stateChange: StateChange): string => {
-  return `State Change ${stateChange.tradeState} ${formatTime(stateChange.timeOfEvent)}`;
+  return `State Change ${stateChange.tradeState}`;
 };
 
-export default EventWebSocketTable;
+export default EventTable;

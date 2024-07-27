@@ -1,0 +1,42 @@
+.App {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    gap: 2vw;
+    flex-wrap: wrap;
+    background-color: #ddd;
+  }
+  
+  .dataCard {
+    background-color: #efefef;
+    border-radius: 0.5em;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    padding: 1em;
+    box-sizing: border-box;
+}
+
+.tableContainer {
+    max-height: 15rem; 
+    overflow: auto; 
+}
+
+.marketSummaryChart {
+    width: 92%; 
+    min-height: 20rem;
+}
+  
+  .marketByLevel {
+    width: 45%;
+    height: 20rem;
+  }
+  
+  .eventTable {
+    width: 45%;
+    height: 20rem;
+    table-layout: fixed;
+
+  }
