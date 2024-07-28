@@ -1,6 +1,7 @@
 package com.herron.exchange.exchangeengine.server.websocket;
 
 public enum ExchangeWebsocketTopics {
+    TRADES("trades"),
     BEST_BID("bestBid"),
     BEST_ASK("bestAsk"),
     STATE_CHANGE("stateChange"),

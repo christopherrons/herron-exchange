@@ -1,5 +1,5 @@
 import { Chart as ChartJS, defaults } from "chart.js/auto";
-import { Bar, Doughnut, Line, Scatter } from "react-chartjs-2";
+import { Scatter } from "react-chartjs-2";
 import { Chart, ChartOptions, registerables } from "chart.js";
 import "chartjs-adapter-moment";
 
@@ -19,6 +19,8 @@ interface DataPoint {
 interface DatasetOptions {
   backgroundColor: string;
   borderColor: string;
+  showLine?: boolean;
+  stepped?: boolean;
 }
 
 interface Props {
@@ -43,6 +45,8 @@ function ScatterChart({ datasets, options }: Props) {
           })),
           backgroundColor: dataset.options?.backgroundColor ?? "#064FF0",
           borderColor: dataset.options?.borderColor ?? "#064FF0",
+          showLine: dataset.options?.showLine ?? false,
+          stepped: dataset.options?.stepped ?? false,
         })),
       }}
       options={options}

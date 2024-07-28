@@ -1,48 +1,78 @@
 import { useEffect, useState } from "react";
 import ScatterChart from "./ScatterChart";
 import { stompSubcription } from "../common/StompClient";
-import { PriceQuote, Message, StateChange } from "../common/Types";
-import { isPriceQuote, isStateChange } from "../common/Utils";
+import { PriceQuote, Message, StateChange, Trade } from "../common/Types";
+import { isPriceQuote, isStateChange, isTrade } from "../common/Utils";
+
+interface Summary {
+  state: string;
+  askQuotes: PriceQuote[];
+  bidQuotes: PriceQuote[];
+  trades: Trade[];
+}
+
 interface Props {
   orderbook: string;
 }
-const maxEvents: number = 1000;
+
+const maxEvents: number = 100;
 
 function MarketSummaryChart({ orderbook }: Props) {
-  const [state, setState] = useState<string>("Inactive");
-  const [askQuotes, setAskQuotes] = useState<PriceQuote[]>([]);
-  const [bidQuotes, setBidQuotes] = useState<PriceQuote[]>([]);
+  const [summary, setSummary] = useState<Summary>({
+    state: "Inactive",
+    askQuotes: [],
+    bidQuotes: [],
+    trades: [],
+  });
 
   const handleMessage = (message: Message) => {
     if (isPriceQuote(message)) {
       const priceQuote: PriceQuote = message;
-      if (priceQuote.side === "BID") {
-        setBidQuotes((previousQuotes) => {
-          const quotes = [priceQuote, ...previousQuotes];
-          return quotes.slice(0, maxEvents);
-        });
-      } else {
-        setAskQuotes((previousQuotes) => {
-          const quotes = [priceQuote, ...previousQuotes];
-          return quotes.slice(0, maxEvents);
-        });
-      }
+      setSummary((prevSummary) => {
+        if (priceQuote.side === "BID") {
+          return {
+            ...prevSummary,
+            bidQuotes: [priceQuote, ...prevSummary.bidQuotes].slice(0, maxEvents),
+          };
+        } else {
+          return {
+            ...prevSummary,
+            askQuotes: [priceQuote, ...prevSummary.askQuotes].slice(0, maxEvents),
+          };
+        }
+      });
     } else if (isStateChange(message)) {
       const stateChange: StateChange = message;
-      setState(stateChange.tradeState);
+      setSummary((prevSummary) => ({
+        ...prevSummary,
+        state: stateChange.tradeState,
+      }));
+    } else if (isTrade(message)) {
+      const trade: Trade = message;
+      setSummary((prevSummary) => {
+        return {
+          ...prevSummary,
+          trades: [trade, ...prevSummary.trades].slice(0, maxEvents),
+        };
+      });
     }
   };
 
   useEffect(() => {
     const topics = [
+      "/topic/trades/" + orderbook,
       "/topic/bestBid/" + orderbook,
       "/topic/bestAsk/" + orderbook,
       "/topic/stateChange/" + orderbook,
     ];
-    stompSubcription({
+    const subscription = stompSubcription({
+      id: "Market Summary Chart",
       topics: topics,
       handleMessage: (message) => handleMessage(message),
     });
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [orderbook]);
 
   return (
@@ -54,8 +84,10 @@ function MarketSummaryChart({ orderbook }: Props) {
             options: {
               backgroundColor: "#FF0000",
               borderColor: "#FF0000",
+              showLine: true,
+              stepped: true,
             },
-            dataPoints: bidQuotes.map((quote: PriceQuote) => ({
+            dataPoints: summary.bidQuotes.map((quote: PriceQuote) => ({
               xValue: quote.timeOfEvent.timeStampMs,
               yValue: parseFloat(quote.price.value),
             })),
@@ -65,24 +97,40 @@ function MarketSummaryChart({ orderbook }: Props) {
             options: {
               backgroundColor: "#064FF0",
               borderColor: "#064FF0",
+              showLine: true,
+              stepped: true,
             },
-            dataPoints: askQuotes.map((quote: PriceQuote) => ({
+            dataPoints: summary.askQuotes.map((quote: PriceQuote) => ({
               xValue: quote.timeOfEvent.timeStampMs,
               yValue: parseFloat(quote.price.value),
             })),
           },
+          {
+            label: "Trade Prices",
+            options: {
+              backgroundColor: "#008000",
+              borderColor: "#008000",
+              showLine: false,
+              stepped: false,
+            },
+            dataPoints: summary.trades.map((trade: Trade) => ({
+              xValue: trade.timeOfEvent.timeStampMs,
+              yValue: parseFloat(trade.price.value),
+            })),
+          },
         ]}
         options={{
-          showLine: true,
           elements: {
             line: {
               tension: 0.5,
+              stepped: true,
             },
+            showline: true,
           },
           plugins: {
             title: {
               display: true,
-              text: `Market Summary Chart ${orderbook} in state ${state}`,
+              text: `Market Summary Chart ${orderbook} in state ${summary.state}`,
             },
           },
           scales: {

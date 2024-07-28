@@ -15,7 +15,8 @@ function EventTable({ orderbook }: Props) {
 
   useEffect(() => {
     const topic = "/topic/orderbookEvent/" + orderbook;
-    stompSubcription({
+    const subscription = stompSubcription({
+      id: "Event table",
       topics: [topic],
       handleMessage: (message) =>
         setMessages((prevMessages) => {
@@ -23,6 +24,9 @@ function EventTable({ orderbook }: Props) {
           return newMessages.slice(0, 15);
         }),
     });
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [orderbook]);
 
   const tableExtractor = (message: Message) => {

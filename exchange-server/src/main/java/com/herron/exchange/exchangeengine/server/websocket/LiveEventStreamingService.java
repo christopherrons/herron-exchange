@@ -4,6 +4,7 @@ import com.herron.exchange.common.api.common.api.Message;
 import com.herron.exchange.common.api.common.api.trading.Order;
 import com.herron.exchange.common.api.common.messages.trading.PriceQuote;
 import com.herron.exchange.common.api.common.messages.trading.StateChange;
+import com.herron.exchange.common.api.common.messages.trading.Trade;
 import com.herron.exchange.common.api.common.messages.trading.TradeExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +42,12 @@ public class LiveEventStreamingService {
             topicAndMessages.add(wrapper);
 
         } else if (message instanceof TradeExecution tradeExecution) {
-            tradeExecution.messages().stream()
-                    .map(m -> new TopicAndMessage(String.format(TOPIC_PATTERN, ORDERBOOK_EVENT.getTopicName(), tradeExecution.orderbookId()), m))
-                    .forEach(topicAndMessages::add);
-
+            for (var m : tradeExecution.messages()) {
+                topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, ORDERBOOK_EVENT.getTopicName(), tradeExecution.orderbookId()), m));
+                if (m instanceof Trade trade) {
+                    topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, TRADES.getTopicName(), tradeExecution.orderbookId()), m));
+                }
+            }
         } else if (message instanceof StateChange stateChange) {
             topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, ORDERBOOK_EVENT.getTopicName(), stateChange.orderbookId()), stateChange));
             topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, STATE_CHANGE.getTopicName(), stateChange.orderbookId()), stateChange));

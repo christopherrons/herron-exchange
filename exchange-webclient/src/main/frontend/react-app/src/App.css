@@ -38,5 +38,11 @@
     width: 45%;
     height: 20rem;
     table-layout: fixed;
+  }
 
+  .ms-summary-chart {
+    width: 100%;
+    height: 25rem; 
+    padding: 2rem;
+    box-sizing: border-box;
   }
