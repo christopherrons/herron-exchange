@@ -12,6 +12,14 @@ export const isOrder = (message: Message): boolean => {
   return message["@type"] === "LIOR" || message["@type"] === "MAOR";
 };
 
+export const isLimitOrder = (message: Message): boolean => {
+  return message["@type"] === "LIOR";
+};
+
+export const isMarketOrder = (message: Message): boolean => {
+  return message["@type"] === "MAOR";
+};
+
 export const isStateChange = (message: Message): boolean => {
   return message["@type"] === "STCH";
 };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import ScatterChart from "./ScatterChart";
 import { stompSubcription } from "../common/StompClient";
-import { PriceQuote, Message, StateChange, Trade } from "../common/Types";
+import { PriceQuote, Message, StateChange, Trade, TimeOfEvent, Event } from "../common/Types";
 import { isPriceQuote, isStateChange, isTrade } from "../common/Utils";
 
 interface Summary {
@@ -15,7 +15,7 @@ interface Props {
   orderbook: string;
 }
 
-const maxEvents: number = 100;
+const maxEvents: number = 1000;
 
 function MarketSummaryChart({ orderbook }: Props) {
   const [summary, setSummary] = useState<Summary>({
@@ -26,36 +26,130 @@ function MarketSummaryChart({ orderbook }: Props) {
   });
 
   const handleMessage = (message: Message) => {
-    if (isPriceQuote(message)) {
-      const priceQuote: PriceQuote = message;
-      setSummary((prevSummary) => {
-        if (priceQuote.side === "BID") {
+    setSummary((prevSummary) => {
+      const filterRecentEvents = (events: any[]) => {
+        return events
+          .filter((event: Event) => isWithinLastSeconds(event.timeOfEvent.timeStampMs))
+          .slice(0, maxEvents);
+      };
+
+      const filterAllEvents = (
+        bidQuotes: PriceQuote[],
+        askQuotes: PriceQuote[],
+        trades: Trade[]
+      ) => {
+        return {
+          bidQuotes: filterRecentEvents(bidQuotes),
+          askQuotes: filterRecentEvents(askQuotes),
+          trades: filterRecentEvents(trades),
+        };
+      };
+
+      if (isPriceQuote(message)) {
+        const priceQuote: PriceQuote = message as PriceQuote;
+
+        const adjustQuoteTimestamp = (quote: PriceQuote, newTimestamp: number): PriceQuote => ({
+          ...quote,
+          timeOfEvent: {
+            ...quote.timeOfEvent,
+            timeStampMs: newTimestamp,
+          },
+        });
+
+        const addPriceGap = (bidQuotes: PriceQuote[], askQuotes: PriceQuote[]) => {
+          if (bidQuotes.length === 0 || askQuotes.length === 0) {
+            return {
+              bidQuotes: bidQuotes,
+              askQuotes: askQuotes,
+            };
+          }
+          const latestBidQuote = bidQuotes[bidQuotes.length - 1];
+          const latestAskQuote = askQuotes[askQuotes.length - 1];
+
+          const latestBidTimestamp = latestBidQuote.timeOfEvent.timeStampMs;
+          const latestAskTimestamp = latestAskQuote.timeOfEvent.timeStampMs;
+
+          let adjustedBidQuotes = [...bidQuotes];
+          let adjustedAskQuotes = [...askQuotes];
+
+          if (latestBidTimestamp < latestAskTimestamp) {
+            const newBidQuote = adjustQuoteTimestamp(latestBidQuote, latestAskTimestamp);
+            adjustedBidQuotes = [newBidQuote, ...bidQuotes];
+          } else if (latestBidTimestamp > latestAskTimestamp) {
+            const newAskQuote = adjustQuoteTimestamp(latestAskQuote, latestBidTimestamp);
+            adjustedAskQuotes = [newAskQuote, ...askQuotes];
+          }
           return {
-            ...prevSummary,
-            bidQuotes: [priceQuote, ...prevSummary.bidQuotes].slice(0, maxEvents),
+            bidQuotes: adjustedBidQuotes,
+            askQuotes: adjustedAskQuotes,
           };
-        } else {
+        };
+
+        const processQuotes = (bidQuotes: PriceQuote[], askQuotes: PriceQuote[]) => {
+          const { bidQuotes: adjustedBidQuotes, askQuotes: adjustedAskQuotes } = addPriceGap(
+            bidQuotes,
+            askQuotes
+          );
           return {
-            ...prevSummary,
-            askQuotes: [priceQuote, ...prevSummary.askQuotes].slice(0, maxEvents),
+            bidQuotes: filterRecentEvents(adjustedBidQuotes),
+            askQuotes: filterRecentEvents(adjustedAskQuotes),
           };
-        }
-      });
-    } else if (isStateChange(message)) {
-      const stateChange: StateChange = message;
-      setSummary((prevSummary) => ({
-        ...prevSummary,
-        state: stateChange.tradeState,
-      }));
-    } else if (isTrade(message)) {
-      const trade: Trade = message;
-      setSummary((prevSummary) => {
+        };
+
+        const updatedBidQuotes =
+          priceQuote.side === "BID"
+            ? [priceQuote, ...prevSummary.bidQuotes]
+            : prevSummary.bidQuotes;
+
+        const updatedAskQuotes =
+          priceQuote.side === "ASK"
+            ? [priceQuote, ...prevSummary.askQuotes]
+            : prevSummary.askQuotes;
+
+        var { bidQuotes, askQuotes } = processQuotes(updatedBidQuotes, updatedAskQuotes);
+
         return {
           ...prevSummary,
-          trades: [trade, ...prevSummary.trades].slice(0, maxEvents),
+          bidQuotes: bidQuotes,
+          askQuotes: askQuotes,
+          trades: prevSummary.trades,
+          stateChanges: prevSummary.state,
         };
-      });
-    }
+      } else if (isStateChange(message)) {
+        const stateChange: StateChange = message as StateChange;
+
+        const { bidQuotes, askQuotes, trades } = filterAllEvents(
+          prevSummary.bidQuotes,
+          prevSummary.askQuotes,
+          prevSummary.trades
+        );
+
+        return {
+          ...prevSummary,
+          bidQuotes: bidQuotes,
+          askQuotes: askQuotes,
+          trades: trades,
+          state: stateChange.tradeState,
+        };
+      } else if (isTrade(message)) {
+        const trade: Trade = message as Trade;
+
+        const { bidQuotes, askQuotes, trades } = filterAllEvents(
+          prevSummary.bidQuotes,
+          prevSummary.askQuotes,
+          [trade, ...prevSummary.trades]
+        );
+
+        return {
+          ...prevSummary,
+          bidQuotes: bidQuotes,
+          askQuotes: askQuotes,
+          trades: trades,
+        };
+      }
+
+      return prevSummary;
+    });
   };
 
   useEffect(() => {
@@ -82,10 +176,11 @@ function MarketSummaryChart({ orderbook }: Props) {
           {
             label: "Bid Prices",
             options: {
-              backgroundColor: "#FF0000",
-              borderColor: "#FF0000",
+              backgroundColor: "rgba(44, 160, 44, 0.2)",
+              borderColor: "rgba(44, 160, 44, 1)",
               showLine: true,
               stepped: true,
+              fill: "start",
             },
             dataPoints: summary.bidQuotes.map((quote: PriceQuote) => ({
               xValue: quote.timeOfEvent.timeStampMs,
@@ -95,10 +190,11 @@ function MarketSummaryChart({ orderbook }: Props) {
           {
             label: "Ask Prices",
             options: {
-              backgroundColor: "#064FF0",
-              borderColor: "#064FF0",
+              backgroundColor: "rgba(214, 39, 40, 0.2)",
+              borderColor: "rgba(214, 39, 40, 1)",
               showLine: true,
               stepped: true,
+              fill: "end",
             },
             dataPoints: summary.askQuotes.map((quote: PriceQuote) => ({
               xValue: quote.timeOfEvent.timeStampMs,
@@ -108,10 +204,12 @@ function MarketSummaryChart({ orderbook }: Props) {
           {
             label: "Trade Prices",
             options: {
-              backgroundColor: "#008000",
-              borderColor: "#008000",
+              backgroundColor: "rgba(31, 119, 180, 0.2)",
+              borderColor: "rgba(31, 119, 180, 1)",
               showLine: false,
               stepped: false,
+              pointRadius: 5,
+              pointStyle: "rect",
             },
             dataPoints: summary.trades.map((trade: Trade) => ({
               xValue: trade.timeOfEvent.timeStampMs,
@@ -167,5 +265,11 @@ function MarketSummaryChart({ orderbook }: Props) {
     </div>
   );
 }
+
+const isWithinLastSeconds = (timestamp: number): boolean => {
+  const now = new Date().getTime();
+  const oneMinuteAgo = now - 30 * 1000;
+  return timestamp >= oneMinuteAgo;
+};
 
 export default MarketSummaryChart;

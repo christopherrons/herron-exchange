@@ -21,6 +21,9 @@ interface DatasetOptions {
   borderColor: string;
   showLine?: boolean;
   stepped?: boolean;
+  pointRadius?: number;
+  pointStyle?: string;
+  fill?: string;
 }
 
 interface Props {
@@ -47,6 +50,9 @@ function ScatterChart({ datasets, options }: Props) {
           borderColor: dataset.options?.borderColor ?? "#064FF0",
           showLine: dataset.options?.showLine ?? false,
           stepped: dataset.options?.stepped ?? false,
+          pointRadius: dataset.options?.pointRadius ?? 1,
+          pointStyle: dataset.options?.pointStyle ?? "circle",
+          fill: dataset.options?.fill ?? "false",
         })),
       }}
       options={options}

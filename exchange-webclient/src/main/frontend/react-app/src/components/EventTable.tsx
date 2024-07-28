@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { formatTime, isOrder, isStateChange, isTradeExecution, isTrade } from "../common/Utils";
+import {
+  formatTime,
+  isOrder,
+  isStateChange,
+  isTradeExecution,
+  isTrade,
+  isMarketOrder,
+} from "../common/Utils";
 import { Message, Order, StateChange, Trade } from "../common/Types";
 import { stompSubcription } from "../common/StompClient";
 import MessageTable from "./MessageTable";
@@ -32,15 +39,15 @@ function EventTable({ orderbook }: Props) {
   const tableExtractor = (message: Message) => {
     let data: string[] = [];
     if (isOrder(message)) {
-      const order: Order = message;
+      const order: Order = message as Order;
       data.push(formatOrderDetails(order));
       data.push(formatTime(order.timeOfEvent));
     } else if (isStateChange(message)) {
-      const stateChange: StateChange = message;
+      const stateChange: StateChange = message as StateChange;
       data.push(formatStateChangeDetails(stateChange));
       data.push(formatTime(stateChange.timeOfEvent));
     } else if (isTrade(message)) {
-      const trade: Trade = message;
+      const trade: Trade = message as Trade;
       data.push(formatTradeDetails(trade));
       data.push(formatTime(trade.timeOfEvent));
     } else {
@@ -63,6 +70,10 @@ function EventTable({ orderbook }: Props) {
 }
 
 const formatOrderDetails = (order: Order): string => {
+  if (isMarketOrder(order)) {
+    return `${order.orderSide} Order ${order.orderOperation} 
+    ${order.currentVolume.value}@MARKET-PRICE`;
+  }
   return `${order.orderSide} Order ${order.orderOperation} 
       ${order.currentVolume.value}@${order.price.value}`;
 };

@@ -7,6 +7,7 @@ function App() {
   //const orderbook = "bitstamp_equity_btcusd";
   return (
     <div className="App">
+      <div className="dataCard instrumentSelector"></div>
       <div className="dataCard marketSummaryChart">
         <div>
           <MarketSummaryChart orderbook={orderbook}></MarketSummaryChart>
