@@ -3,6 +3,7 @@ package com.herron.exchange.exchangeengine.server.websocket;
 public enum ExchangeWebsocketTopics {
     TRADES("trades"),
     BEST_BID("bestBid"),
+    TOP_OF_BOOK("topOfBook"),
     BEST_ASK("bestAsk"),
     STATE_CHANGE("stateChange"),
     ORDERBOOK_EVENT("orderbookEvent");

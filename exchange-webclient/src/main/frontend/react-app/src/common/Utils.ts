@@ -28,6 +28,10 @@ export const isPriceQuote = (message: Message): boolean => {
   return message["@type"] === "PRQU";
 };
 
+export const isTopOfBook = (message: Message): boolean => {
+  return message["@type"] === "TOOB";
+};
+
 export const formatTime = (event: TimeOfEvent): string => {
   const { timeStampMs, zoneId } = event;
 

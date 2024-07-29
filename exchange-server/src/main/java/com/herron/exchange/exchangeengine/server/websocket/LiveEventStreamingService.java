@@ -2,13 +2,15 @@ package com.herron.exchange.exchangeengine.server.websocket;
 
 import com.herron.exchange.common.api.common.api.Message;
 import com.herron.exchange.common.api.common.api.trading.Order;
-import com.herron.exchange.common.api.common.messages.trading.*;
+import com.herron.exchange.common.api.common.messages.trading.StateChange;
+import com.herron.exchange.common.api.common.messages.trading.TopOfBook;
+import com.herron.exchange.common.api.common.messages.trading.Trade;
+import com.herron.exchange.common.api.common.messages.trading.TradeExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.herron.exchange.exchangeengine.server.websocket.ExchangeWebsocketTopics.*;
@@ -33,8 +35,7 @@ public class LiveEventStreamingService {
     private Set<TopicAndMessage> generateTopics(Message message) {
         var topicAndMessages = new HashSet<TopicAndMessage>();
         if (message instanceof TopOfBook topOfBook) {
-            Optional.ofNullable(topOfBook.bidQuote()).map(bq -> new TopicAndMessage(String.format(TOPIC_PATTERN, BEST_BID.getTopicName(), bq.orderbookId()), message)).ifPresent(topicAndMessages::add);
-            Optional.ofNullable(topOfBook.askQuote()).map(aq -> new TopicAndMessage(String.format(TOPIC_PATTERN, BEST_ASK.getTopicName(), aq.orderbookId()), message)).ifPresent(topicAndMessages::add);
+            topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, TOP_OF_BOOK.getTopicName(), topOfBook.orderbookId()), topOfBook));
 
         } else if (message instanceof TradeExecution tradeExecution) {
             for (var m : tradeExecution.messages()) {
