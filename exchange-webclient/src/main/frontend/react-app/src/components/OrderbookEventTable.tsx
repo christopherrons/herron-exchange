@@ -1,41 +1,19 @@
-import { useEffect, useState } from "react";
-import {
-  formatTime,
-  isOrder,
-  isStateChange,
-  isTradeExecution,
-  isTrade,
-  isMarketOrder,
-} from "../common/Utils";
+import { formatTime, isOrder, isStateChange, isTrade, isMarketOrder } from "../common/Utils";
 import { Message, Order, StateChange, Trade } from "../common/Types";
-import { stompSubcription } from "../common/StompClient";
 import MessageTable from "./MessageTable";
 
 interface Props {
+  table: Table;
+}
+
+interface Table {
   orderbook: string;
+  messages: Message[];
 }
 
 const headers: string[] = ["Event", "Time"];
 
-function OrderbookEventTable({ orderbook }: Props) {
-  const [messages, setMessages] = useState<Message[]>([]);
-
-  useEffect(() => {
-    const topic = "/topic/orderbookEvent/" + orderbook;
-    const subscription = stompSubcription({
-      id: "Event table",
-      topics: [topic],
-      handleMessage: (message) =>
-        setMessages((prevMessages) => {
-          const newMessages = [message, ...prevMessages];
-          return newMessages.slice(0, 15);
-        }),
-    });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [orderbook]);
-
+function OrderbookEventTable({ table }: Props) {
   const tableExtractor = (message: Message) => {
     let data: string[] = [];
     if (isOrder(message)) {
@@ -60,9 +38,9 @@ function OrderbookEventTable({ orderbook }: Props) {
   return (
     <div>
       <MessageTable
-        items={messages}
+        items={table.messages}
         columnHeaders={headers}
-        heading="Orbook Events Events"
+        heading={"Orderbook Events in " + table.orderbook}
         tableExtractor={tableExtractor}
       ></MessageTable>
     </div>

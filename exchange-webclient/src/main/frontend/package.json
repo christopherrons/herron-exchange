@@ -1,9 +1,11 @@
 {
   "dependencies": {
     "@stomp/stompjs": "^7.0.0",
+    "@types/lodash": "^4.17.7",
     "bootstrap": "^5.2.3",
     "chart.js": "^4.4.3",
     "chartjs-adapter-moment": "^1.0.1",
+    "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "react-chartjs-2": "^5.2.0",
     "sockjs-client": "^1.6.1"

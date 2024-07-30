@@ -50,7 +50,7 @@ function ScatterChart({ datasets, options }: Props) {
           borderColor: dataset.options?.borderColor ?? "#064FF0",
           showLine: dataset.options?.showLine ?? false,
           stepped: dataset.options?.stepped ?? false,
-          pointRadius: dataset.options?.pointRadius ?? 1,
+          pointRadius: dataset.options?.pointRadius ?? 3,
           pointStyle: dataset.options?.pointStyle ?? "circle",
           fill: dataset.options?.fill ?? "false",
         })),

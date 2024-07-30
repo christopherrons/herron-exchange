@@ -2,10 +2,10 @@ import { PriceQuote, Trade } from "../common/Types";
 import ScatterChart from "./ScatterChart";
 
 interface Props {
-  summary: MarketSummary;
+  spread: Spread;
 }
 
-interface MarketSummary {
+interface Spread {
   orderbook: string;
   state: string;
   askQuotes: PriceQuote[];
@@ -13,10 +13,10 @@ interface MarketSummary {
   trades: Trade[];
 }
 
-function MarketSummaryChart({ summary }: Props) {
+function SpreadChart({ spread }: Props) {
   return (
-    <div className="ms-summary-chart">
-      <h3>Market Summary</h3>
+    <div className="ms-spread-chart">
+      <h3>Bid Ask Spread</h3>
       <ScatterChart
         datasets={[
           {
@@ -27,8 +27,9 @@ function MarketSummaryChart({ summary }: Props) {
               showLine: true,
               stepped: true,
               fill: "start",
+              pointRadius: 0,
             },
-            dataPoints: summary.bidQuotes.map((quote: PriceQuote) => ({
+            dataPoints: spread.bidQuotes.map((quote: PriceQuote) => ({
               xValue: quote.timeOfEvent.timeStampMs,
               yValue: parseFloat(quote.price.value),
             })),
@@ -41,8 +42,9 @@ function MarketSummaryChart({ summary }: Props) {
               showLine: true,
               stepped: true,
               fill: "end",
+              pointRadius: 0,
             },
-            dataPoints: summary.askQuotes.map((quote: PriceQuote) => ({
+            dataPoints: spread.askQuotes.map((quote: PriceQuote) => ({
               xValue: quote.timeOfEvent.timeStampMs,
               yValue: parseFloat(quote.price.value),
             })),
@@ -57,7 +59,7 @@ function MarketSummaryChart({ summary }: Props) {
               pointRadius: 3,
               pointStyle: "rect",
             },
-            dataPoints: summary.trades.map((trade: Trade) => ({
+            dataPoints: spread.trades.map((trade: Trade) => ({
               xValue: trade.timeOfEvent.timeStampMs,
               yValue: parseFloat(trade.price.value),
             })),
@@ -74,7 +76,7 @@ function MarketSummaryChart({ summary }: Props) {
           plugins: {
             title: {
               display: true,
-              text: `Orderbook ${summary.orderbook} in state ${summary.state}`,
+              text: `Orderbook ${spread.orderbook} in state ${spread.state}`,
             },
           },
           scales: {
@@ -112,4 +114,4 @@ function MarketSummaryChart({ summary }: Props) {
   );
 }
 
-export default MarketSummaryChart;
+export default SpreadChart;

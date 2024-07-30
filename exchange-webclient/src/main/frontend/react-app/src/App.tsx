@@ -1,6 +1,6 @@
-import OrderbookEventTable from "./components/OrderbookEventTable";
 import "./App.css";
-import MarketSummaryChart from "./components/LiveMarketSummaryChart";
+import LiveSpreadChart from "./components/LiveSpreadChart";
+import LiveOrderbookEventTable from "./components/LiveOrderbookEventTable";
 
 function App() {
   //const orderbook = "DE000F0HNSJ4";
@@ -8,15 +8,15 @@ function App() {
   return (
     <div className="App">
       <div className="dataCard instrumentSelector"></div>
-      <div className="dataCard marketSummaryChart">
+      <div className="dataCard spreadChart">
         <div>
-          <MarketSummaryChart orderbook={orderbook}></MarketSummaryChart>
+          <LiveSpreadChart orderbook={orderbook}></LiveSpreadChart>
         </div>
       </div>
 
       <div className="dataCard eventTable">
         <div>
-          <OrderbookEventTable orderbook={orderbook}></OrderbookEventTable>
+          <LiveOrderbookEventTable orderbook={orderbook}></LiveOrderbookEventTable>
         </div>
       </div>
       <div className="dataCard marketByLevel"></div>
