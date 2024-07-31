@@ -21,7 +21,10 @@ function LiveOrderbookEventTable({ orderbook }: Props) {
 
   const throttledSetTable = useCallback(
     throttle((newTable: Table) => {
-      setTable(newTable);
+      setTable({
+        ...newTable,
+        messages: newTable.messages.slice(0, 15),
+      });
     }, updateFrequencyMs),
     []
   );
@@ -29,7 +32,7 @@ function LiveOrderbookEventTable({ orderbook }: Props) {
   const handleMessage = (message: Message) => {
     cacheTable.current = {
       ...cacheTable.current,
-      messages: [message, ...cacheTable.current.messages].slice(0, 15),
+      messages: [message, ...cacheTable.current.messages],
     };
     throttledSetTable(cacheTable.current);
   };

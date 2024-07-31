@@ -17,36 +17,10 @@ interface Props {
   orderbook: string;
 }
 
-const maxNrOfEvents: number = 1000;
 const maxNrOfSeconds: number = 30;
 const updateFrequencyMs: number = 1000;
 
 const updateCacheSpread = (message: Message, prevSpread: Spread): Spread => {
-  const filterAllEvents = (bidQuotes: PriceQuote[], askQuotes: PriceQuote[], trades: Trade[]) => {
-    const latestTimeStamp = Math.max(
-      bidQuotes[bidQuotes.length - 1]?.timeOfEvent.timeStampMs ?? 0,
-      askQuotes[askQuotes.length - 1]?.timeOfEvent.timeStampMs ?? 0,
-      trades[trades.length - 1]?.timeOfEvent.timeStampMs ?? 0
-    );
-
-    const filteredBidQuotes = filterRecentEvents(bidQuotes, latestTimeStamp).slice(
-      0,
-      maxNrOfEvents
-    );
-
-    const earlistTimestamp: number = filteredBidQuotes[0]?.timeOfEvent.timeStampMs ?? 0;
-    const filterOldEvents = (events: Event[]) => {
-      return events
-        .filter((event: Event) => event.timeOfEvent.timeStampMs >= earlistTimestamp)
-        .slice(0, maxNrOfEvents);
-    };
-
-    return {
-      bidQuotes: filteredBidQuotes,
-      askQuotes: filterOldEvents(askQuotes),
-      trades: filterOldEvents(trades),
-    };
-  };
   if (isTopOfBook(message)) {
     const topOfBook: TopOfBook = message as TopOfBook;
 
@@ -60,57 +34,54 @@ const updateCacheSpread = (message: Message, prevSpread: Spread): Spread => {
         ? [...prevSpread.askQuotes, { ...topOfBook.askQuote, timeOfEvent: topOfBook.timeOfEvent }]
         : prevSpread.askQuotes;
 
-    var { bidQuotes, askQuotes, trades } = filterAllEvents(
-      updatedBidQuotes,
-      updatedAskQuotes,
-      prevSpread.trades
-    );
-
     return {
       ...prevSpread,
-      bidQuotes: bidQuotes,
-      askQuotes: askQuotes,
-      trades: trades,
+      bidQuotes: updatedBidQuotes,
+      askQuotes: updatedAskQuotes,
       state: prevSpread.state,
     };
   } else if (isStateChange(message)) {
     const stateChange: StateChange = message as StateChange;
 
-    const { bidQuotes, askQuotes, trades } = filterAllEvents(
-      prevSpread.bidQuotes,
-      prevSpread.askQuotes,
-      prevSpread.trades
-    );
-
     return {
       ...prevSpread,
-      bidQuotes: bidQuotes,
-      askQuotes: askQuotes,
-      trades: trades,
       state: stateChange.tradeState,
     };
   } else if (isTrade(message)) {
     const trade: Trade = message as Trade;
 
-    const { bidQuotes, askQuotes, trades } = filterAllEvents(
-      prevSpread.bidQuotes,
-      prevSpread.askQuotes,
-      [...prevSpread.trades, trade]
-    );
-
     return {
       ...prevSpread,
-      bidQuotes: bidQuotes,
-      askQuotes: askQuotes,
-      trades: trades,
+      trades: [...prevSpread.trades, trade],
     };
   }
 
   return prevSpread;
 };
 
+const filterAllEvents = (bidQuotes: PriceQuote[], askQuotes: PriceQuote[], trades: Trade[]) => {
+  const latestTimeStamp = Math.max(
+    bidQuotes[bidQuotes.length - 1]?.timeOfEvent.timeStampMs ?? 0,
+    askQuotes[askQuotes.length - 1]?.timeOfEvent.timeStampMs ?? 0,
+    trades[trades.length - 1]?.timeOfEvent.timeStampMs ?? 0
+  );
+
+  const filteredBidQuotes: PriceQuote[] = filterRecentEvents(bidQuotes, latestTimeStamp);
+
+  const earlistTimestamp: number = filteredBidQuotes[0]?.timeOfEvent.timeStampMs ?? 0;
+  const filterOldEvents = <T extends Event>(events: T[]) => {
+    return events.filter((event: T) => event.timeOfEvent.timeStampMs >= earlistTimestamp);
+  };
+
+  return {
+    bidQuotes: filteredBidQuotes,
+    askQuotes: filterOldEvents(askQuotes),
+    trades: filterOldEvents(trades),
+  };
+};
+
 const filterRecentEvents = <T extends Event>(events: T[], latestTimeStamp: number) => {
-  return events.filter((event: Event) =>
+  return events.filter((event: T) =>
     isWithinLastNSeconds(latestTimeStamp, event.timeOfEvent.timeStampMs, maxNrOfSeconds)
   );
 };
@@ -133,7 +104,18 @@ function LiveMarketSpreadChart({ orderbook }: Props) {
 
   const throttledSetSpread = useCallback(
     throttle((newSpread: Spread) => {
-      setSpread(newSpread);
+      const { bidQuotes, askQuotes, trades } = filterAllEvents(
+        newSpread.bidQuotes,
+        newSpread.askQuotes,
+        newSpread.trades
+      );
+      const filteredSpread: Spread = {
+        ...newSpread,
+        bidQuotes: bidQuotes,
+        askQuotes: askQuotes,
+        trades: trades,
+      };
+      setSpread(filteredSpread);
     }, updateFrequencyMs),
     []
   );
