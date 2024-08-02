@@ -8,7 +8,6 @@ The Exchange server...
 * [Documentation](#documentation): Further documentation.
 * [Configuration](#configuration): How to configure the application.
 * [Application DevOps](#application-devops): How to deploy the application.
-* [Exchange Service Ecosystem](#exchange-service-ecosystem): The Exchange service ecosystem
 
 ## Requirements
 
@@ -38,7 +37,3 @@ scripts.
 
 The application can be deployed to a remote machine using the `deploy` task.
 
-## Exchange Service Ecosystem
-
-* [Bitstamp Consumer](https://github.com/christopherrons/herron-bitstamp-consumer)
-* [Trading Engine](https://github.com/christopherrons/herron-trading-engine)
