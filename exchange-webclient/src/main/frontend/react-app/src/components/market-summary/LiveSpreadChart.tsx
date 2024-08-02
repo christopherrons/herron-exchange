@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { stompSubcription } from "../common/StompClient";
-import { PriceQuote, Message, StateChange, Trade, Event, TopOfBook } from "../common/Types";
-import { isStateChange, isTopOfBook, isTrade } from "../common/Utils";
+import { stompSubcription } from "../../common/stomp-client";
+import { PriceQuote, Message, StateChange, Trade, Event, TopOfBook } from "../../common/types";
+import { isStateChange, isTopOfBook, isTrade } from "../../common/utils";
 import SpreadChart from "./SpreadChart";
 import { throttle } from "lodash";
+import { fetchOrderbookState } from "../../common/rest-client";
 
 interface Spread {
-  orderbook: string;
+  orderbookId: string;
   state: string;
   askQuotes: PriceQuote[];
   bidQuotes: PriceQuote[];
@@ -14,7 +15,7 @@ interface Spread {
 }
 
 interface Props {
-  orderbook: string;
+  orderbookId: string;
 }
 
 const maxNrOfSeconds: number = 30;
@@ -86,16 +87,18 @@ const filterRecentEvents = <T extends Event>(events: T[], latestTimeStamp: numbe
   );
 };
 
-function LiveMarketSpreadChart({ orderbook }: Props) {
+function LiveMarketSpreadChart({ orderbookId }: Props) {
   const cacheSpread = useRef<Spread>({
-    orderbook: orderbook,
-    state: "Inactive",
+    orderbookId: orderbookId,
+    state: "CLOSED",
     askQuotes: [],
     bidQuotes: [],
     trades: [],
   });
 
   const [spread, setSpread] = useState<Spread>(cacheSpread.current);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const handleMessage = (message: Message) => {
     cacheSpread.current = updateCacheSpread(message, cacheSpread.current);
@@ -121,10 +124,27 @@ function LiveMarketSpreadChart({ orderbook }: Props) {
   );
 
   useEffect(() => {
+    const getOrderbookState = async () => {
+      try {
+        const state: string = await fetchOrderbookState(orderbookId);
+        cacheSpread.current = {
+          ...cacheSpread.current,
+          state: state,
+        };
+      } catch (error: any) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+        setSpread(cacheSpread.current);
+      }
+    };
+
+    getOrderbookState();
+
     const topics = [
-      "/topic/trades/" + orderbook,
-      "/topic/topOfBook/" + orderbook,
-      "/topic/stateChange/" + orderbook,
+      "/topic/trades/" + orderbookId,
+      "/topic/topOfBook/" + orderbookId,
+      "/topic/stateChange/" + orderbookId,
     ];
     const subscription = stompSubcription({
       id: "Spread Chart",
@@ -134,7 +154,7 @@ function LiveMarketSpreadChart({ orderbook }: Props) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [orderbook]);
+  }, [orderbookId]);
 
   return (
     <div>

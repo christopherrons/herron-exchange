@@ -1,13 +1,13 @@
-import { formatTime, isOrder, isStateChange, isTrade, isMarketOrder } from "../common/Utils";
-import { Message, Order, StateChange, Trade } from "../common/Types";
-import MessageTable from "./MessageTable";
+import { formatTime, isOrder, isStateChange, isTrade, isMarketOrder } from "../../common/utils";
+import { Message, Order, StateChange, Trade } from "../../common/types";
+import MessageTable from "../common/MessageTable";
 
 interface Props {
   table: Table;
 }
 
 interface Table {
-  orderbook: string;
+  orderbookId: string;
   messages: Message[];
 }
 
@@ -40,7 +40,7 @@ function OrderbookEventTable({ table }: Props) {
       <MessageTable
         items={table.messages}
         columnHeaders={headers}
-        heading={"Orderbook Events in " + table.orderbook}
+        heading={"Orderbook Events"}
         tableExtractor={tableExtractor}
       ></MessageTable>
     </div>

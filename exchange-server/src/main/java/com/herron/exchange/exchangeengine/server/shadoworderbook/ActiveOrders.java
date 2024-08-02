@@ -131,6 +131,34 @@ public class ActiveOrders {
         };
     }
 
+    public long totalNrOfBidOrdersAtPriceLevel(int priceLevel) {
+        return bidPriceToPriceLevel.values().stream()
+                .skip(priceLevel - 1L)
+                .findFirst()
+                .map(PriceLevel::nrOfOrdersAtPriceLevel)
+                .orElse(0L);
+    }
+
+    public long totalNrOfAskOrdersAtPriceLevel(int priceLevel) {
+        return askPriceToPriceLevel.values().stream()
+                .skip(priceLevel - 1L)
+                .findFirst()
+                .map(PriceLevel::nrOfOrdersAtPriceLevel)
+                .orElse(0L);
+    }
+
+    public boolean doOrdersExistAtLevel(int priceLevel) {
+        return doesBidLevelExist(priceLevel) || doesAskLevelExist(priceLevel);
+    }
+
+    public boolean doesBidLevelExist(int priceLevel) {
+        return bidPriceToPriceLevel.size() >= priceLevel;
+    }
+
+    public boolean doesAskLevelExist(int priceLevel) {
+        return askPriceToPriceLevel.size() >= priceLevel;
+    }
+
     public long totalNumberOfActiveOrders() {
         return orderIdToOrder.size();
     }
@@ -167,20 +195,18 @@ public class ActiveOrders {
                 .orElse(Volume.ZERO);
     }
 
-    public Price getAskPriceAtPriceLevel(int priceLevel) {
+    public Optional<Price> getAskPriceAtPriceLevel(int priceLevel) {
         return askPriceToPriceLevel.values().stream()
                 .skip(priceLevel - 1L)
                 .findFirst()
-                .map(PriceLevel::getPrice)
-                .orElse(Price.ZERO);
+                .map(PriceLevel::getPrice);
     }
 
-    public Price getBidPriceAtPriceLevel(int priceLevel) {
+    public Optional<Price> getBidPriceAtPriceLevel(int priceLevel) {
         return bidPriceToPriceLevel.values().stream()
                 .skip(priceLevel - 1L)
                 .findFirst()
-                .map(PriceLevel::getPrice)
-                .orElse(Price.ZERO);
+                .map(PriceLevel::getPrice);
     }
 
     public boolean hasBidAndAskOrders() {

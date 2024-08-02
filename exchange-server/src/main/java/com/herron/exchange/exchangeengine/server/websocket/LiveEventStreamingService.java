@@ -2,10 +2,7 @@ package com.herron.exchange.exchangeengine.server.websocket;
 
 import com.herron.exchange.common.api.common.api.Message;
 import com.herron.exchange.common.api.common.api.trading.Order;
-import com.herron.exchange.common.api.common.messages.trading.StateChange;
-import com.herron.exchange.common.api.common.messages.trading.TopOfBook;
-import com.herron.exchange.common.api.common.messages.trading.Trade;
-import com.herron.exchange.common.api.common.messages.trading.TradeExecution;
+import com.herron.exchange.common.api.common.messages.trading.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -34,22 +31,37 @@ public class LiveEventStreamingService {
 
     private Set<TopicAndMessage> generateTopics(Message message) {
         var topicAndMessages = new HashSet<TopicAndMessage>();
-        if (message instanceof TopOfBook topOfBook) {
-            topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, TOP_OF_BOOK.getTopicName(), topOfBook.orderbookId()), topOfBook));
 
-        } else if (message instanceof TradeExecution tradeExecution) {
-            for (var m : tradeExecution.messages()) {
-                topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, ORDERBOOK_EVENT.getTopicName(), tradeExecution.orderbookId()), m));
-                if (m instanceof Trade trade) {
-                    topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, TRADES.getTopicName(), tradeExecution.orderbookId()), m));
+        switch (message) {
+            case TopOfBook topOfBook -> {
+                topicAndMessages.add(new TopicAndMessage(
+                        String.format(TOPIC_PATTERN, TOP_OF_BOOK.getTopicName(), topOfBook.orderbookId()), topOfBook));
+            }
+            case TradeExecution tradeExecution -> {
+                for (var m : tradeExecution.messages()) {
+                    topicAndMessages.add(new TopicAndMessage(
+                            String.format(TOPIC_PATTERN, ORDERBOOK_EVENT.getTopicName(), tradeExecution.orderbookId()), m));
+                    if (m instanceof Trade trade) {
+                        topicAndMessages.add(new TopicAndMessage(
+                                String.format(TOPIC_PATTERN, TRADES.getTopicName(), tradeExecution.orderbookId()), trade));
+                    }
                 }
             }
-        } else if (message instanceof StateChange stateChange) {
-            topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, ORDERBOOK_EVENT.getTopicName(), stateChange.orderbookId()), stateChange));
-            topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, STATE_CHANGE.getTopicName(), stateChange.orderbookId()), stateChange));
-
-        } else if (message instanceof Order order) {
-            topicAndMessages.add(new TopicAndMessage(String.format(TOPIC_PATTERN, ORDERBOOK_EVENT.getTopicName(), order.orderbookId()), order));
+            case StateChange stateChange -> {
+                topicAndMessages.add(new TopicAndMessage(
+                        String.format(TOPIC_PATTERN, ORDERBOOK_EVENT.getTopicName(), stateChange.orderbookId()), stateChange));
+                topicAndMessages.add(new TopicAndMessage(
+                        String.format(TOPIC_PATTERN, STATE_CHANGE.getTopicName(), stateChange.orderbookId()), stateChange));
+            }
+            case Order order -> {
+                topicAndMessages.add(new TopicAndMessage(
+                        String.format(TOPIC_PATTERN, ORDERBOOK_EVENT.getTopicName(), order.orderbookId()), order));
+            }
+            case MarketByLevel marketByLevel -> {
+                topicAndMessages.add(new TopicAndMessage(
+                        String.format(TOPIC_PATTERN, MARKET_BY_LEVEL.getTopicName(), marketByLevel.orderbookId()), marketByLevel));
+            }
+            default -> LOGGER.warn("Unsupported message type: " + message.getClass().getName());
         }
 
         return topicAndMessages;

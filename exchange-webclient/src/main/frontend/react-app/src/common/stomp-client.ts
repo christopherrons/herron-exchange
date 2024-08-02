@@ -1,6 +1,6 @@
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
-import { Message } from "./Types";
+import { Message } from "./types";
 import { useEffect } from "react";
 
 interface Props {
@@ -17,7 +17,7 @@ export const stompSubcription = ({ id, topics, handleMessage }: Props) => {
       console.log(id + " connected to STOMP broker");
 
       topics.forEach((topic: string) => {
-        console.log(id + " subscribed to topic" + topic);
+        console.log(id + " subscribed to topic " + topic);
         client.subscribe(topic, (message: IMessage) => {
           const messageBody: Message = JSON.parse(message.body);
           handleMessage(messageBody);

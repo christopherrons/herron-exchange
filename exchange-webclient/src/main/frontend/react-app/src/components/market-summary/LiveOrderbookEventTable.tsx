@@ -1,22 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Message } from "../common/Types";
-import { stompSubcription } from "../common/StompClient";
-import OrderbookEventTable from "./OrderbookEventTable";
+import { Message } from "../../common/types";
+import { stompSubcription } from "../../common/stomp-client";
 import { throttle } from "lodash";
+import OrderbookEventTable from "./OrderbookEventTable";
 
 interface Props {
-  orderbook: string;
+  orderbookId: string;
 }
 
 interface Table {
-  orderbook: string;
+  orderbookId: string;
   messages: Message[];
 }
 
 const updateFrequencyMs: number = 1000;
 
-function LiveOrderbookEventTable({ orderbook }: Props) {
-  const cacheTable = useRef<Table>({ orderbook: orderbook, messages: [] });
+function LiveOrderbookEventTable({ orderbookId }: Props) {
+  const cacheTable = useRef<Table>({ orderbookId: orderbookId, messages: [] });
   const [table, setTable] = useState<Table>(cacheTable.current);
 
   const throttledSetTable = useCallback(
@@ -38,7 +38,7 @@ function LiveOrderbookEventTable({ orderbook }: Props) {
   };
 
   useEffect(() => {
-    const topic = "/topic/orderbookEvent/" + orderbook;
+    const topic = "/topic/orderbookEvent/" + orderbookId;
     const subscription = stompSubcription({
       id: "Event table",
       topics: [topic],
@@ -47,7 +47,7 @@ function LiveOrderbookEventTable({ orderbook }: Props) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [orderbook]);
+  }, [orderbookId]);
 
   return (
     <div>

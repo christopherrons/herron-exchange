@@ -3,6 +3,7 @@ package com.herron.exchange.exchangeengine.server.shadoworderbook;
 import com.herron.exchange.common.api.common.api.trading.Order;
 import com.herron.exchange.common.api.common.api.trading.OrderbookEvent;
 import com.herron.exchange.common.api.common.messages.trading.StateChange;
+import com.herron.exchange.common.api.common.messages.trading.TradeExecution;
 import com.herron.exchange.common.api.common.wrappers.ThreadWrapper;
 import com.herron.exchange.exchangeengine.server.shadoworderbook.api.ShadowOrderbookReadonly;
 import com.herron.exchange.exchangeengine.server.shadoworderbook.cache.OrderbookCache;
@@ -44,7 +45,7 @@ public class ShadowOrderbookHandler {
     }
 
     private void startShadowing() {
-        LOGGER.info("Starting shadowing orderbook {}.", id);
+        LOGGER.info("Starting shadowing orderbook in product {}.", id);
         OrderbookEvent orderbookEvent;
         while (isShadowing.get() || !eventQueue.isEmpty()) {
 
@@ -74,7 +75,16 @@ public class ShadowOrderbookHandler {
         var orderbook = orderbookCache.getOrCreateOrderbook(orderbookEvent.orderbookId());
         switch (orderbookEvent) {
             case StateChange stateChange -> orderbook.updateState(stateChange.tradeState());
-            case Order order -> orderbook.updateOrderbook(order);
+            case TradeExecution tradeExecution -> {
+                tradeExecution.messages().stream().filter(m -> m instanceof Order).map(order -> (Order) order).forEach(orderbook::updateOrderbook);
+                var marketByLevel = orderbook.getMarketByLevel(5);
+                streamEvent(marketByLevel);
+            }
+            case Order order -> {
+                orderbook.updateOrderbook(order);
+                var marketByLevel = orderbook.getMarketByLevel(5);
+                streamEvent(marketByLevel);
+            }
             default -> {
             }
         }
@@ -87,5 +97,4 @@ public class ShadowOrderbookHandler {
     private void streamEvent(OrderbookEvent orderbookEvent) {
         liveEventStreamingService.streamMessage(orderbookEvent);
     }
-
 }

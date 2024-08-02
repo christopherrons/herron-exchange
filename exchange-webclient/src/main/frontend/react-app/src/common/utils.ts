@@ -1,4 +1,4 @@
-import { Message, TimeOfEvent } from "./Types";
+import { Message, TimeOfEvent } from "./types";
 
 export const isTradeExecution = (message: Message): boolean => {
   return message["@type"] === "TREX";
@@ -6,6 +6,10 @@ export const isTradeExecution = (message: Message): boolean => {
 
 export const isTrade = (message: Message): boolean => {
   return message["@type"] === "TRAD";
+};
+
+export const isMarketByLevel = (message: Message): boolean => {
+  return message["@type"] === "MBLE";
 };
 
 export const isOrder = (message: Message): boolean => {

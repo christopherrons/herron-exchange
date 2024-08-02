@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Message } from "../common/Types";
+import { Message } from "../../common/types";
 
 interface Props {
   items: Message[];
@@ -11,7 +11,7 @@ interface Props {
 function MessageTable({ items, heading, columnHeaders, tableExtractor }: Props) {
   return (
     <>
-      <h4>{heading}</h4>
+      {heading && <h3>{heading}</h3>}
       {items.length > 0 && (
         <div className="tableContainer">
           <table className="table table-striped">

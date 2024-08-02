@@ -1,21 +1,14 @@
 package com.herron.exchange.exchangeengine.server.rest;
 
-import com.herron.exchange.common.api.common.api.referencedata.orderbook.OrderbookData;
-import com.herron.exchange.common.api.common.cache.ReferenceDataCache;
 import com.herron.exchange.common.api.common.enums.TradingStatesEnum;
-import com.herron.exchange.exchangeengine.server.ExchangeEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-@Controller
-@CrossOrigin("*")
+@RestController
 @RequestMapping("/exchangeData")
 public class ExchangeDataController {
 
@@ -26,14 +19,8 @@ public class ExchangeDataController {
         this.exchangeDataService = exchangeDataService;
     }
 
-    @GetMapping("/availableOrderbookIds")
-    public Set<String> getOrderbookIds() {
-        LOGGER.info("Get request available orderbooks received.");
-        return exchangeDataService.getOrderbookIds();
-    }
-
     @GetMapping("/orderbookState")
-    public TradingStatesEnum getOrderbookState(String orderbookId) {
+    public TradingStatesEnum getOrderbookState(@RequestParam("orderbookId") String orderbookId) {
         LOGGER.info("Get request for {} state received.", orderbookId);
         return exchangeDataService.getOrderbookState(orderbookId);
     }

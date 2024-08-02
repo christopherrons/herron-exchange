@@ -4,17 +4,17 @@ import com.herron.exchange.common.api.common.api.referencedata.orderbook.Orderbo
 import com.herron.exchange.common.api.common.api.trading.Order;
 import com.herron.exchange.common.api.common.enums.MatchingAlgorithmEnum;
 import com.herron.exchange.common.api.common.enums.TradingStatesEnum;
+import com.herron.exchange.common.api.common.locks.LockHandler;
 import com.herron.exchange.common.api.common.messages.common.Price;
 import com.herron.exchange.common.api.common.messages.common.Timestamp;
 import com.herron.exchange.common.api.common.messages.common.Volume;
-import com.herron.exchange.common.api.common.messages.trading.ImmutablePriceQuote;
-import com.herron.exchange.common.api.common.messages.trading.ImmutableTopOfBook;
-import com.herron.exchange.common.api.common.messages.trading.PriceQuote;
-import com.herron.exchange.common.api.common.messages.trading.TopOfBook;
+import com.herron.exchange.common.api.common.messages.trading.*;
 import com.herron.exchange.exchangeengine.server.shadoworderbook.api.ShadowOrderbookReadonly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,6 +31,7 @@ public class ShadowOrderbook implements ShadowOrderbookReadonly {
     private final ActiveOrders activeOrders;
     private TradingStatesEnum currentState = CLOSED;
     private final AtomicReference<PriceQuote> latestPrice = new AtomicReference<>();
+    private final LockHandler lock = new LockHandler();
 
     public ShadowOrderbook(OrderbookData orderbookData, ActiveOrders activeOrders) {
         this.orderbookData = orderbookData;
@@ -38,175 +39,208 @@ public class ShadowOrderbook implements ShadowOrderbookReadonly {
     }
 
     public synchronized boolean updateOrderbook(Order order) {
-        if (!isAccepting()) {
-            LOGGER.error("Is not accepting {}.", currentState);
-            return false;
-        }
-        if (order.isActiveOrder()) {
-            return switch (order.orderOperation()) {
-                case INSERT -> addOrder(order);
-                case UPDATE -> updateOrder(order);
-                case CANCEL -> removeOrder(order);
-            };
-        }
-        return true;
+        return lock.executeWithWriteLock(() -> {
+                    if (order.isActiveOrder()) {
+                        return switch (order.orderOperation()) {
+                            case INSERT -> addOrder(order);
+                            case UPDATE -> updateOrder(order);
+                            case CANCEL -> removeOrder(order);
+                        };
+                    }
+                    return true;
+                }
+        );
     }
 
     public boolean isAccepting() {
-        //FIXME: Add acceptable operations based on the current state.
-        if (currentState == null) {
-            return false;
-        }
-        if (currentState == TRADE_HALT) {
-            return false;
-        }
+        return lock.executeWithReadLock(() -> {
+                    if (currentState == null) {
+                        return false;
+                    }
+                    if (currentState == TRADE_HALT) {
+                        return false;
+                    }
 
-        if (currentState == CLOSED) {
-            return false;
-        }
-        return true;
+                    if (currentState == CLOSED) {
+                        return false;
+                    }
+                    return true;
+                }
+        );
     }
 
     private boolean updateOrder(Order order) {
-        return activeOrders.updateOrder(order);
+        return lock.executeWithWriteLock(() -> activeOrders.updateOrder(order));
     }
 
     private boolean addOrder(Order order) {
-        return activeOrders.addOrder(order);
+        return lock.executeWithWriteLock(() -> activeOrders.addOrder(order));
     }
 
     public boolean removeOrder(String orderId) {
-        return activeOrders.removeOrder(orderId);
+        return lock.executeWithWriteLock(() -> activeOrders.removeOrder(orderId));
     }
 
     private boolean removeOrder(Order order) {
-        return activeOrders.removeOrder(order);
+        return lock.executeWithWriteLock(() -> activeOrders.removeOrder(order));
     }
 
     public Optional<Price> getBestBidPrice() {
-        return activeOrders.getBestBidPrice();
+        return lock.executeWithReadLock(activeOrders::getBestBidPrice);
     }
 
     public Optional<Price> getBestAskPrice() {
-        return activeOrders.getBestAskPrice();
+        return lock.executeWithReadLock(activeOrders::getBestAskPrice);
     }
 
     public boolean hasBidAndAskOrders() {
-        return activeOrders.hasBidAndAskOrders();
+        return lock.executeWithReadLock(activeOrders::hasBidAndAskOrders);
     }
 
     public long totalNumberOfBidOrders() {
-        return activeOrders.totalNumberOfBidOrders();
+        return lock.executeWithReadLock(activeOrders::totalNumberOfBidOrders);
     }
 
     public long totalNumberOfAskOrders() {
-        return activeOrders.totalNumberOfAskOrders();
+        return lock.executeWithReadLock(activeOrders::totalNumberOfAskOrders);
     }
 
     public long totalNumberOfActiveOrders() {
-        return activeOrders.totalNumberOfActiveOrders();
+        return lock.executeWithReadLock(activeOrders::totalNumberOfActiveOrders);
     }
 
     public Volume totalOrderVolume() {
-        return activeOrders.totalOrderVolume();
+        return lock.executeWithReadLock(activeOrders::totalOrderVolume);
     }
 
     public Volume totalBidVolume() {
-        return activeOrders.totalBidVolume();
+        return lock.executeWithReadLock(activeOrders::totalBidVolume);
     }
 
     public Volume totalAskVolume() {
-        return activeOrders.totalAskVolume();
+        return lock.executeWithReadLock(activeOrders::totalAskVolume);
     }
 
     public Volume totalVolumeAtPriceLevel(int priceLevel) {
-        return activeOrders.totalVolumeAtPriceLevel(priceLevel);
+        return lock.executeWithReadLock(() -> activeOrders.totalVolumeAtPriceLevel(priceLevel));
     }
 
     public Volume totalBidVolumeAtPriceLevel(int priceLevel) {
-        return activeOrders.totalBidVolumeAtPriceLevel(priceLevel);
+        return lock.executeWithReadLock(() -> activeOrders.totalBidVolumeAtPriceLevel(priceLevel));
     }
 
     public Volume totalAskVolumeAtPriceLevel(int priceLevel) {
-        return activeOrders.totalAskVolumeAtPriceLevel(priceLevel);
+        return lock.executeWithReadLock(() -> activeOrders.totalAskVolumeAtPriceLevel(priceLevel));
     }
 
     public int totalNumberOfPriceLevels() {
-        return activeOrders.totalNumberOfPriceLevels();
+        return lock.executeWithReadLock(activeOrders::totalNumberOfPriceLevels);
     }
 
     public int totalNumberOfBidPriceLevels() {
-        return activeOrders.totalNumberOfBidPriceLevels();
+        return lock.executeWithReadLock(activeOrders::totalNumberOfBidPriceLevels);
     }
 
     public int totalNumberOfAskPriceLevels() {
-        return activeOrders.totalNumberOfAskPriceLevels();
+        return lock.executeWithReadLock(activeOrders::totalNumberOfAskPriceLevels);
     }
 
     public Order getOrder(String orderId) {
-        return activeOrders.getOrder(orderId);
+        return lock.executeWithReadLock(() -> activeOrders.getOrder(orderId));
     }
 
     public MatchingAlgorithmEnum getMatchingAlgorithm() {
-        return orderbookData.matchingAlgorithm();
+        return lock.executeWithReadLock(orderbookData::matchingAlgorithm);
     }
 
     public String getOrderbookId() {
-        return orderbookData.orderbookId();
+        return lock.executeWithReadLock(orderbookData::orderbookId);
     }
 
     public String getInstrumentId() {
-        return orderbookData.instrument().instrumentId();
+        return lock.executeWithReadLock(() -> orderbookData.instrument().instrumentId());
     }
 
-    public Price getAskPriceAtPriceLevel(int priceLevel) {
-        return activeOrders.getAskPriceAtPriceLevel(priceLevel);
+    public Optional<Price> getAskPriceAtPriceLevel(int priceLevel) {
+        return lock.executeWithReadLock(() -> activeOrders.getAskPriceAtPriceLevel(priceLevel));
     }
 
-    public Price getBidPriceAtPriceLevel(int priceLevel) {
-        return activeOrders.getBidPriceAtPriceLevel(priceLevel);
+    public Optional<Price> getBidPriceAtPriceLevel(int priceLevel) {
+        return lock.executeWithReadLock(() -> activeOrders.getBidPriceAtPriceLevel(priceLevel));
     }
 
     public Optional<Order> getBestBidOrder() {
-        return activeOrders.getBestBidOrder();
+        return lock.executeWithReadLock(activeOrders::getBestBidOrder);
     }
 
     public TopOfBook getTopOfBook() {
-        var builder = ImmutableTopOfBook.builder()
-                .orderbookId(getOrderbookId())
-                .timeOfEvent(Timestamp.now())
-                .eventType(SYSTEM);
+        return lock.executeWithReadLock(() -> {
+                    var builder = ImmutableTopOfBook.builder()
+                            .orderbookId(getOrderbookId())
+                            .timeOfEvent(Timestamp.now())
+                            .eventType(SYSTEM);
 
-        Optional.ofNullable(latestPrice.get()).ifPresent(builder::lastQuote);
-        getBestAskOrder()
-                .map(ao -> ImmutablePriceQuote.builder().orderbookId(getOrderbookId()).price(ao.price()).eventType(ao.eventType()).timeOfEvent(ao.timeOfEvent()).quoteType(ASK_PRICE).build())
-                .ifPresent(builder::askQuote);
-        getBestBidOrder()
-                .map(bo -> ImmutablePriceQuote.builder().orderbookId(getOrderbookId()).price(bo.price()).eventType(bo.eventType()).timeOfEvent(bo.timeOfEvent()).quoteType(BID_PRICE).build())
-                .ifPresent(builder::bidQuote);
+                    Optional.ofNullable(latestPrice.get()).ifPresent(builder::lastQuote);
+                    getBestAskOrder()
+                            .map(ao -> ImmutablePriceQuote.builder().orderbookId(getOrderbookId()).price(ao.price()).eventType(ao.eventType()).timeOfEvent(ao.timeOfEvent()).quoteType(ASK_PRICE).build())
+                            .ifPresent(builder::askQuote);
+                    getBestBidOrder()
+                            .map(bo -> ImmutablePriceQuote.builder().orderbookId(getOrderbookId()).price(bo.price()).eventType(bo.eventType()).timeOfEvent(bo.timeOfEvent()).quoteType(BID_PRICE).build())
+                            .ifPresent(builder::bidQuote);
 
-        return builder.build();
+                    return builder.build();
+                }
+        );
+    }
+
+    public MarketByLevel getMarketByLevel(int nrOfLevels) {
+        return lock.executeWithReadLock(() -> {
+                    List<MarketByLevel.LevelData> levelData = new ArrayList<>();
+                    for (int level = 1; level < nrOfLevels + 1; level++) {
+                        if (!activeOrders.doOrdersExistAtLevel(level)) {
+                            break;
+                        }
+
+                        var builder = ImmutableLevelData.builder().level(level);
+
+                        if (activeOrders.doesBidLevelExist(level)) {
+                            activeOrders.getBidPriceAtPriceLevel(level).ifPresent(builder::bidPrice);
+                            builder.bidVolume(activeOrders.totalBidVolumeAtPriceLevel(level));
+                            builder.nrOfBidOrders(activeOrders.totalNrOfBidOrdersAtPriceLevel(level));
+                        }
+
+                        if (activeOrders.doesAskLevelExist(level)) {
+                            activeOrders.getAskPriceAtPriceLevel(level).ifPresent(builder::askPrice);
+                            builder.askVolume(activeOrders.totalAskVolumeAtPriceLevel(level));
+                            builder.nrOfAskOrders(activeOrders.totalNrOfAskOrdersAtPriceLevel(level));
+                        }
+
+                        levelData.add(builder.build());
+
+                    }
+                    return ImmutableMarketByLevel.builder()
+                            .orderbookId(getOrderbookId())
+                            .timeOfEvent(Timestamp.now())
+                            .levelData(levelData)
+                            .eventType(SYSTEM)
+                            .build();
+                }
+        );
     }
 
     public Optional<Order> getBestAskOrder() {
-        return activeOrders.getBestAskOrder();
+        return lock.executeWithReadLock(activeOrders::getBestAskOrder);
     }
 
     public boolean updateState(TradingStatesEnum toState) {
-        if (toState == currentState) {
-            return true;
-        }
-
-        if (currentState == null || currentState.isValidStateChange(toState)) {
-            LOGGER.info("Successfully updated orderbook {} from state {} to state {}.", getOrderbookId(), currentState, toState);
-            currentState = toState;
-            return true;
-        }
-        LOGGER.error("Could not updated orderbook {} from state {} to state {}.", getOrderbookId(), currentState, toState);
-        return false;
+        return lock.executeWithWriteLock(() -> {
+                    currentState = toState;
+                    return true;
+                }
+        );
     }
 
     public TradingStatesEnum getState() {
-        return currentState;
+        return lock.executeWithReadLock(() -> currentState);
     }
 }

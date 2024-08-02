@@ -1,25 +1,19 @@
 import "./App.css";
-import LiveSpreadChart from "./components/LiveSpreadChart";
-import LiveOrderbookEventTable from "./components/LiveOrderbookEventTable";
+import LiveMarketByLevelBarChart from "./components/market-summary/LiveMarketByLevelBarChart";
+import LiveOrderbookEventTable from "./components/market-summary/LiveOrderbookEventTable";
+import LiveSpreadChart from "./components/market-summary/LiveSpreadChart";
+import MarketSummary from "./components/market-summary/MarketSummary";
 
 function App() {
-  //const orderbook = "DE000F0HNSJ4";
-  const orderbook = "bitstamp_equity_btcusd";
+  //const orderbookId = "DE000F0HNSJ4";
+  const orderbookId = "bitstamp_equity_btcusd";
   return (
     <div className="App">
-      <div className="dataCard instrumentSelector"></div>
-      <div className="dataCard spreadChart">
+      <div>
         <div>
-          <LiveSpreadChart orderbook={orderbook}></LiveSpreadChart>
+          <MarketSummary></MarketSummary>
         </div>
       </div>
-
-      <div className="dataCard eventTable">
-        <div>
-          <LiveOrderbookEventTable orderbook={orderbook}></LiveOrderbookEventTable>
-        </div>
-      </div>
-      <div className="dataCard marketByLevel"></div>
     </div>
   );
 }

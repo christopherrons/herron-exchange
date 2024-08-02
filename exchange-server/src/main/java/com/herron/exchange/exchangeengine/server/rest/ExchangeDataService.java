@@ -4,10 +4,13 @@ import com.herron.exchange.common.api.common.api.referencedata.orderbook.Orderbo
 import com.herron.exchange.common.api.common.cache.ReferenceDataCache;
 import com.herron.exchange.common.api.common.enums.TradingStatesEnum;
 import com.herron.exchange.exchangeengine.server.ExchangeEngine;
+import com.herron.exchange.exchangeengine.server.shadoworderbook.api.ShadowOrderbookReadonly;
+import org.springframework.stereotype.Service;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 public class ExchangeDataService {
     private final ExchangeEngine exchangeEngine;
 
@@ -20,6 +23,6 @@ public class ExchangeDataService {
     }
 
     public TradingStatesEnum getOrderbookState(String orderbookId) {
-        return exchangeEngine.getOrderbook(orderbookId).getState();
+        return exchangeEngine.getOrderbook(orderbookId).map(ShadowOrderbookReadonly::getState).orElse(TradingStatesEnum.CLOSED);
     }
 }

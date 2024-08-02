@@ -6,6 +6,7 @@ public enum ExchangeWebsocketTopics {
     TOP_OF_BOOK("topOfBook"),
     BEST_ASK("bestAsk"),
     STATE_CHANGE("stateChange"),
+    MARKET_BY_LEVEL("marketByLevel"),
     ORDERBOOK_EVENT("orderbookEvent");
 
     private final String topicName;

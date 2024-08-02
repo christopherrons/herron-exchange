@@ -7,6 +7,7 @@ import com.herron.exchange.exchangeengine.server.shadoworderbook.api.ShadowOrder
 import com.herron.exchange.exchangeengine.server.websocket.LiveEventStreamingService;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ExchangeEngine {
@@ -20,8 +21,6 @@ public class ExchangeEngine {
     }
 
     public void handleOrderbookEvents(OrderbookEvent orderbookEvent) {
-        liveEventStreamingService.streamMessage(orderbookEvent);
-
         var orderbookId = orderbookEvent.orderbookId();
         var key = ReferenceDataCache.getCache().getOrderbookData(orderbookId).instrument().product().productName();
         orderbookToPartitionKey.putIfAbsent(orderbookId, key);
@@ -33,8 +32,11 @@ public class ExchangeEngine {
                 .queueMessage(orderbookEvent);
     }
 
-    public ShadowOrderbookReadonly getOrderbook(String orderbookId) {
+    public Optional<ShadowOrderbookReadonly> getOrderbook(String orderbookId) {
         var key = orderbookToPartitionKey.get(orderbookId);
-        return partitionKeyToMatchingEngine.get(key).getOrderbook(orderbookId);
+        if (!partitionKeyToMatchingEngine.containsKey(key)) {
+            return Optional.empty();
+        }
+        return Optional.of(partitionKeyToMatchingEngine.get(key).getOrderbook(orderbookId));
     }
 }

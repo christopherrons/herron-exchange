@@ -1,6 +1,8 @@
 server:
   port: 8087
 
+web:
+  host: "http://localhost:5173"
 kafka:
   bootstrap-servers: "localhost:9092"
   consumer:

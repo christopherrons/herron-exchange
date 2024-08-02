@@ -62,6 +62,22 @@ export interface PriceQuote extends Quote {
   price: Price;
 }
 
+export interface MarketByLevel extends OrderbookEvent {
+  levelData: LevelData[];
+}
+
+export interface LevelData {
+  level: number;
+  nrOfAskOrders: number;
+  nrOfBidOrders: number;
+  totalNrOfOrders: number;
+  totalVolume?: Volume;
+  bidVolume?: Volume;
+  askVolume?: Volume;
+  askPrice?: Price;
+  bidPrice?: Price;
+}
+
 export interface TimeOfEvent {
   timeStampMs: number;
   zoneId: string;
