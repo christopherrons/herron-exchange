@@ -1,26 +1,23 @@
 package com.herron.exchange.exchangeengine.server.rest;
 
 import com.herron.exchange.common.api.common.api.referencedata.instruments.*;
-import com.herron.exchange.common.api.common.cache.ReferenceDataCache;
+import com.herron.exchange.common.api.common.api.referencedata.orderbook.OrderbookData;
 import com.herron.exchange.common.api.common.messages.common.Timestamp;
 import com.herron.exchange.common.api.common.messages.common.Tree;
 import com.herron.exchange.common.api.common.messages.refdata.ImmutableInstrumentHierarchy;
 import com.herron.exchange.common.api.common.messages.refdata.InstrumentHierarchy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InstrumentHierarchyBuilder {
     private static final String ROOT = "herron-exchange";
 
-    public static InstrumentHierarchy build() {
+    public static InstrumentHierarchy build(Collection<OrderbookData> orderbookData) {
 
         var rootNode = new Tree.TreeNode(ROOT, ROOT, new ArrayList<>());
         Map<String, Tree.TreeNode> idToChild = new HashMap<>();
 
-        for (var hierarchy : getHierarchies()) {
+        for (var hierarchy : getHierarchies(orderbookData)) {
             var parentNode = rootNode;
             for (int i = 1; i < hierarchy.size(); i++) {
                 var name = hierarchy.get(i);
@@ -41,10 +38,10 @@ public class InstrumentHierarchyBuilder {
                 .build();
     }
 
-    private static List<List<String>> getHierarchies() {
+    private static List<List<String>> getHierarchies(Collection<OrderbookData> orderbookData) {
         List<List<String>> hierarchies = new ArrayList<>();
 
-        for (var orderBookData : ReferenceDataCache.getCache().getOrderbookData()) {
+        for (var orderBookData : orderbookData) {
             var hierarchy = new ArrayList<String>();
             hierarchy.add(ROOT);
             var instrument = orderBookData.instrument();

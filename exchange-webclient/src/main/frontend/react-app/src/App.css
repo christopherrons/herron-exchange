@@ -1,9 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif; 
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Roboto', sans-serif;
+}
+
 .App {
     height: 100vh;
     width: 100%;
     background-color: #ddd;
     align-content: center;
   }
+
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
   .market-summary {
     display: flex;
@@ -30,7 +48,7 @@
 
 .instrumentSelector {
   width: 92%; 
-  max-height: 20rem; 
+  max-height: 15rem; 
   min-height: 15rem; 
   overflow: auto; 
 }
@@ -65,3 +83,34 @@
     height: 15rem; 
     box-sizing: border-box;
   }
+
+  .footer {
+    text-align: center;
+    margin-top: 1rem;
+    color: #333;
+}
+
+.tree-node-container {
+  margin-left: 20px;
+}
+
+.tree-node-header {
+  display: flex;
+  align-items: center;
+}
+
+.tree-node-name {
+  cursor: pointer;
+}
+
+.tree-node-name.text-dark {
+  color: black;
+}
+
+.tree-node-name.text-primary {
+  color: rgba(31, 119, 180, 0.2);
+}
+
+.tree-node-children {
+  margin-left: 20px;
+}

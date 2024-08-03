@@ -1,58 +1,70 @@
 import React, { useEffect, useState } from "react";
 import { TreeNode } from "../../common/types";
 
-type TreeNodeProps = {
+interface TreeNodeProps {
   node: TreeNode;
-  onItemSelect: (node: TreeNode) => void;
-};
+  onItemSelect: (node: any) => void;
+}
 
 const TreeNodeComponent: React.FC<TreeNodeProps> = ({ node, onItemSelect }) => {
   const [expanded, setExpanded] = useState(false);
 
   const handleToggle = () => {
-    setExpanded(!expanded);
+    setExpanded((prev) => !prev);
   };
 
   const handleSelect = () => {
-    if (!node.children || node.children.length === 0) {
-      onItemSelect(node);
-    }
+    onItemSelect(node);
   };
 
+  const hasChildren = node.children && node.children.length > 0;
+
   return (
-    <div style={{ marginLeft: 20 }}>
-      <div>
-        {node.children && node.children.length > 0 && (
-          <button onClick={handleToggle}>{expanded ? "-" : "+"}</button>
+    <div className="tree-node-container">
+      <div className="d-flex align-items-center">
+        {hasChildren && (
+          <button
+            onClick={handleToggle}
+            className={`btn btn-sm ${expanded ? "btn-outline-danger" : "btn-outline-success"} me-2`}
+          >
+            {expanded ? "-" : "+"}
+          </button>
         )}
         <span
-          onClick={handleSelect}
-          style={{
-            cursor: node.children && node.children.length > 0 ? "default" : "pointer",
-            color: node.children && node.children.length > 0 ? "black" : "blue",
-          }}
+          onClick={hasChildren ? () => {} : handleSelect}
+          className={`tree-node-name ${hasChildren ? "text-dark" : "text-primary"}`}
+          style={{ cursor: hasChildren ? "default" : "pointer" }}
         >
-          {node.name}
+          {hasChildren ? (
+            node.name
+          ) : (
+            <>
+              <span style={{ color: "black" }}>{"- "}</span>
+              {node.name}
+            </>
+          )}
         </span>
       </div>
-      {expanded &&
-        node.children &&
-        node.children.map((child) => (
-          <TreeNodeComponent key={child.id} node={child} onItemSelect={onItemSelect} />
-        ))}
+      {expanded && hasChildren && (
+        <div className="tree-node-children ms-3">
+          {node.children!.map((child: TreeNode) => (
+            <TreeNodeComponent key={child.id} node={child} onItemSelect={onItemSelect} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
 type TreeProps = {
-  data?: TreeNode[];
+  nodes?: TreeNode[];
   onItemSelect: (node: TreeNode) => void;
 };
 
-function TreeBuilder({ data, onItemSelect }: TreeProps) {
+function TreeBuilder({ nodes, onItemSelect }: TreeProps) {
   return (
     <div>
-      {data?.map((node) => (
+      {nodes?.map((node) => (
         <TreeNodeComponent key={node.id} node={node} onItemSelect={onItemSelect} />
       ))}
     </div>

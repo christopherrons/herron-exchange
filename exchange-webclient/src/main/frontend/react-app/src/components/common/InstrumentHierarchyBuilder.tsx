@@ -31,11 +31,13 @@ function InstrumentHierarchyBuilder({ onItemSelect }: Props) {
   return (
     <div>
       <h3>Instrument Selection</h3>
-      {rootNode ? (
-        <TreeBuilder data={rootNode.children ?? []} onItemSelect={onItemSelect} />
-      ) : (
-        <p>No data available</p>
-      )}
+      <div className="instrumentHierarchy">
+        {rootNode ? (
+          <TreeBuilder nodes={rootNode.children ?? []} onItemSelect={onItemSelect} />
+        ) : (
+          <p>No data available</p>
+        )}
+      </div>
     </div>
   );
 }

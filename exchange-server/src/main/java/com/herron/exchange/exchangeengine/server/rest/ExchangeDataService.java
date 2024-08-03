@@ -28,6 +28,6 @@ public class ExchangeDataService {
     }
 
     public InstrumentHierarchy getInstrumentHierarchy() {
-        return InstrumentHierarchyBuilder.build();
+        return InstrumentHierarchyBuilder.build(ReferenceDataCache.getCache().getOrderbookData());
     }
 }
