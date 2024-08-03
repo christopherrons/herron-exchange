@@ -21,6 +21,16 @@ interface Props {
 const maxNrOfSeconds: number = 30;
 const updateFrequencyMs: number = 1000;
 
+const initCache = (orderbookId: string) => {
+  return {
+    orderbookId: orderbookId,
+    state: "CLOSED",
+    askQuotes: [],
+    bidQuotes: [],
+    trades: [],
+  };
+};
+
 const updateCacheSpread = (message: Message, prevSpread: Spread): Spread => {
   if (isTopOfBook(message)) {
     const topOfBook: TopOfBook = message as TopOfBook;
@@ -88,13 +98,7 @@ const filterRecentEvents = <T extends Event>(events: T[], latestTimeStamp: numbe
 };
 
 function LiveMarketSpreadChart({ orderbookId }: Props) {
-  const cacheSpread = useRef<Spread>({
-    orderbookId: orderbookId,
-    state: "CLOSED",
-    askQuotes: [],
-    bidQuotes: [],
-    trades: [],
-  });
+  const cacheSpread = useRef<Spread>(initCache(orderbookId));
 
   const [spread, setSpread] = useState<Spread>(cacheSpread.current);
   const [loading, setLoading] = useState<boolean>(true);
@@ -124,6 +128,8 @@ function LiveMarketSpreadChart({ orderbookId }: Props) {
   );
 
   useEffect(() => {
+    cacheSpread.current = initCache(orderbookId);
+    setSpread(cacheSpread.current);
     const getOrderbookState = async () => {
       try {
         const state: string = await fetchOrderbookState(orderbookId);

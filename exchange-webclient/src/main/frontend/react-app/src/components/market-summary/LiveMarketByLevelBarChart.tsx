@@ -11,14 +11,18 @@ interface Props {
 
 const updateFrequencyMs: number = 1000;
 
-function LiveMarketByLevelBarChart({ orderbookId }: Props) {
-  const cachedMarketByLevel = useRef<MarketByLevel>({
+const initCache = (orderbookId: string) => {
+  return {
     orderbookId: orderbookId,
     levelData: [],
     timeOfEvent: { timeStampMs: 0, zoneId: "UTC" },
     eventType: "SYSTEM",
     "@type": "MBLE",
-  });
+  };
+};
+
+function LiveMarketByLevelBarChart({ orderbookId }: Props) {
+  const cachedMarketByLevel = useRef<MarketByLevel>(initCache(orderbookId));
 
   const [marketByLevel, setMarketByLevel] = useState<MarketByLevel>(cachedMarketByLevel.current);
 
@@ -37,6 +41,9 @@ function LiveMarketByLevelBarChart({ orderbookId }: Props) {
   );
 
   useEffect(() => {
+    cachedMarketByLevel.current = initCache(orderbookId);
+    setMarketByLevel(cachedMarketByLevel.current);
+
     const topics = ["/topic/marketByLevel/" + orderbookId];
     const subscription = stompSubcription({
       id: "Market by Level Chart",

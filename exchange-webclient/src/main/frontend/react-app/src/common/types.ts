@@ -104,3 +104,18 @@ export interface Volume {
 export interface Price {
   value: string;
 }
+
+export interface InstrumentHierarchy extends Message {
+  timeStamp: TimeOfEvent;
+  instrumentTree: Tree;
+}
+
+export interface Tree {
+  rootNode: TreeNode;
+}
+
+export interface TreeNode {
+  id: string;
+  name: string;
+  children?: TreeNode[];
+};

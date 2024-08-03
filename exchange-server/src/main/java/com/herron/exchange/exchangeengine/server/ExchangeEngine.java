@@ -33,10 +33,8 @@ public class ExchangeEngine {
     }
 
     public Optional<ShadowOrderbookReadonly> getOrderbook(String orderbookId) {
-        var key = orderbookToPartitionKey.get(orderbookId);
-        if (!partitionKeyToMatchingEngine.containsKey(key)) {
-            return Optional.empty();
-        }
-        return Optional.of(partitionKeyToMatchingEngine.get(key).getOrderbook(orderbookId));
+        return Optional.ofNullable(orderbookToPartitionKey.get(orderbookId))
+                .filter(partitionKeyToMatchingEngine::containsKey)
+                .map(key -> partitionKeyToMatchingEngine.get(key).getOrderbook(orderbookId));
     }
 }

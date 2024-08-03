@@ -1,16 +1,49 @@
-package com.herron.exchange.exchangeengine.server;
+package com.herron.exchange.exchangeengine.server.rest;
 
 import com.herron.exchange.common.api.common.api.referencedata.instruments.*;
 import com.herron.exchange.common.api.common.cache.ReferenceDataCache;
-import com.herron.exchange.common.api.common.messages.refdata.InstrumentHierarchyGroup;
+import com.herron.exchange.common.api.common.messages.common.Timestamp;
+import com.herron.exchange.common.api.common.messages.common.Tree;
+import com.herron.exchange.common.api.common.messages.refdata.ImmutableInstrumentHierarchy;
+import com.herron.exchange.common.api.common.messages.refdata.InstrumentHierarchy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InstrumentHierarchyBuilder {
     private static final String ROOT = "herron-exchange";
 
-    public InstrumentHierarchyGroup build() {
+    public static InstrumentHierarchy build() {
+
+        var rootNode = new Tree.TreeNode(ROOT);
+        Map<String, Tree.TreeNode> idToChild = new HashMap<>();
+
+        for (var hierarchy : getHierarchies()) {
+            var parentNode = rootNode;
+            for (int i = 1; i < hierarchy.size(); i++) {
+                var name = hierarchy.get(i);
+                var id = hierarchy.subList(0, i + 1).toString();
+
+                if (!idToChild.containsKey(id)) {
+                    var childNode = new Tree.TreeNode(id, name, new ArrayList<>());
+                    idToChild.put(id, childNode);
+                    parentNode.addChild(childNode);
+                }
+                parentNode = idToChild.get(id);
+            }
+        }
+
+        return ImmutableInstrumentHierarchy.builder()
+                .timeStamp(Timestamp.now())
+                .instrumentTree(new Tree(rootNode))
+                .build();
+    }
+
+    private static List<List<String>> getHierarchies() {
         List<List<String>> hierarchies = new ArrayList<>();
+
         for (var orderBookData : ReferenceDataCache.getCache().getOrderbookData()) {
             var hierarchy = new ArrayList<String>();
             hierarchy.add(ROOT);
@@ -23,32 +56,15 @@ public class InstrumentHierarchyBuilder {
             }
             hierarchies.add(hierarchy);
         }
-
-        Map<String, Set<String>> parentIdToChildId = new HashMap<>();
-        Map<String, Set<String>> childIdToParentId = new HashMap<>();
-        Map<String, Set<String>> groupIdToInstrumentId = new HashMap<>();
-        for (var hierarchy : hierarchies) {
-            var parent = ROOT;
-            for (int i = 1; i < hierarchy.size(); i++) {
-                var child = hierarchy.get(i);
-                if (i == hierarchy.size() - 1) {
-                    groupIdToInstrumentId.computeIfAbsent(parent, k -> new HashSet<>()).add(child);
-                } else {
-                    parentIdToChildId.computeIfAbsent(parent, k -> new HashSet<>()).add(child);
-                    childIdToParentId.computeIfAbsent(child, k -> new HashSet<>()).add(parent);
-                    parent = child;
-                }
-            }
-        }
-        return null;
+        return hierarchies;
     }
 
-    private void handleEquitiesHierarchy(List<String> hierarchy, EquityInstrument equityInstrument) {
+    private static void handleEquitiesHierarchy(List<String> hierarchy, EquityInstrument equityInstrument) {
         hierarchy.add("equities");
         hierarchy.add(equityInstrument.instrumentId());
     }
 
-    private void handleDerivativeHierarchy(List<String> hierarchy, DerivativeInstrument derivativeInstrument) {
+    private static void handleDerivativeHierarchy(List<String> hierarchy, DerivativeInstrument derivativeInstrument) {
         hierarchy.add("derivatives");
         switch (derivativeInstrument) {
             case FutureInstrument futureInstrument -> handleFuturesHierarchy(hierarchy, futureInstrument);
@@ -57,7 +73,7 @@ public class InstrumentHierarchyBuilder {
         }
     }
 
-    private void handleFuturesHierarchy(List<String> hierarchy, FutureInstrument futureInstrument) {
+    private static void handleFuturesHierarchy(List<String> hierarchy, FutureInstrument futureInstrument) {
         hierarchy.add("futures");
         var date = futureInstrument.maturityDate().toLocalDate();
         hierarchy.add(String.valueOf(date.getYear()));
@@ -66,20 +82,20 @@ public class InstrumentHierarchyBuilder {
         hierarchy.add(futureInstrument.instrumentId());
     }
 
-    private void handleOptionsHierarchy(List<String> hierarchy, OptionInstrument optionInstrument) {
+    private static void handleOptionsHierarchy(List<String> hierarchy, OptionInstrument optionInstrument) {
         hierarchy.add("options");
+        hierarchy.add(optionInstrument.optionSubType().getValue());
         var date = optionInstrument.maturityDate().toLocalDate();
+        hierarchy.add(optionInstrument.optionExerciseStyle().getValue());
+        hierarchy.add(optionInstrument.optionType().getValue());
         hierarchy.add(String.valueOf(date.getYear()));
         hierarchy.add(String.valueOf(date.getMonthValue()));
         hierarchy.add(String.valueOf(date.getDayOfMonth()));
-        hierarchy.add(optionInstrument.strikePrice().getValue().toString());
-        hierarchy.add(optionInstrument.optionSubType().getValue());
-        hierarchy.add(optionInstrument.optionExerciseStyle().getValue());
-        hierarchy.add(optionInstrument.optionType().getValue());
+        hierarchy.add("strike@" + optionInstrument.strikePrice().getValue().toString());
         hierarchy.add(optionInstrument.instrumentId());
     }
 
-    private void handleBondHierarchy(List<String> hierarchy, BondInstrument bondInstrument) {
+    private static void handleBondHierarchy(List<String> hierarchy, BondInstrument bondInstrument) {
         hierarchy.add("bonds");
         var date = bondInstrument.maturityDate().toLocalDate();
         hierarchy.add(String.valueOf(date.getYear()));

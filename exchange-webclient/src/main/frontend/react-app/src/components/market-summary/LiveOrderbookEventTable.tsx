@@ -15,8 +15,12 @@ interface Table {
 
 const updateFrequencyMs: number = 1000;
 
+const initCache = (orderbookId: string) => {
+  return { orderbookId: orderbookId, messages: [] };
+};
+
 function LiveOrderbookEventTable({ orderbookId }: Props) {
-  const cacheTable = useRef<Table>({ orderbookId: orderbookId, messages: [] });
+  const cacheTable = useRef<Table>(initCache(orderbookId));
   const [table, setTable] = useState<Table>(cacheTable.current);
 
   const throttledSetTable = useCallback(
@@ -38,6 +42,8 @@ function LiveOrderbookEventTable({ orderbookId }: Props) {
   };
 
   useEffect(() => {
+    cacheTable.current = initCache(orderbookId);
+    setTable(cacheTable.current);
     const topic = "/topic/orderbookEvent/" + orderbookId;
     const subscription = stompSubcription({
       id: "Event table",

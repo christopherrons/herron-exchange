@@ -3,6 +3,7 @@ package com.herron.exchange.exchangeengine.server.rest;
 import com.herron.exchange.common.api.common.api.referencedata.orderbook.OrderbookData;
 import com.herron.exchange.common.api.common.cache.ReferenceDataCache;
 import com.herron.exchange.common.api.common.enums.TradingStatesEnum;
+import com.herron.exchange.common.api.common.messages.refdata.InstrumentHierarchy;
 import com.herron.exchange.exchangeengine.server.ExchangeEngine;
 import com.herron.exchange.exchangeengine.server.shadoworderbook.api.ShadowOrderbookReadonly;
 import org.springframework.stereotype.Service;
@@ -24,5 +25,9 @@ public class ExchangeDataService {
 
     public TradingStatesEnum getOrderbookState(String orderbookId) {
         return exchangeEngine.getOrderbook(orderbookId).map(ShadowOrderbookReadonly::getState).orElse(TradingStatesEnum.CLOSED);
+    }
+
+    public InstrumentHierarchy getInstrumentHierarchy() {
+        return InstrumentHierarchyBuilder.build();
     }
 }

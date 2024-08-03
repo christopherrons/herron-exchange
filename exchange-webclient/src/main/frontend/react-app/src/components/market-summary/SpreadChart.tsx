@@ -112,7 +112,7 @@ function SpreadChart({ spread }: Props) {
   };
   return (
     <div className="ms-spread-chart">
-      <h3>Bid Ask Spread</h3>
+      <h3>Bid Ask Spread - {spread.orderbookId}</h3>
       <ScatterChart data={data} options={options} />
     </div>
   );

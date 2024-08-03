@@ -40,7 +40,7 @@ function OrderbookEventTable({ table }: Props) {
       <MessageTable
         items={table.messages}
         columnHeaders={headers}
-        heading={"Orderbook Events"}
+        heading={"Orderbook Events - " + table.orderbookId}
         tableExtractor={tableExtractor}
       ></MessageTable>
     </div>

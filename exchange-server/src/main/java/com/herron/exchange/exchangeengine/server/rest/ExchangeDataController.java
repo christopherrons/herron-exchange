@@ -1,6 +1,7 @@
 package com.herron.exchange.exchangeengine.server.rest;
 
 import com.herron.exchange.common.api.common.enums.TradingStatesEnum;
+import com.herron.exchange.common.api.common.messages.refdata.InstrumentHierarchy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,5 +24,11 @@ public class ExchangeDataController {
     public TradingStatesEnum getOrderbookState(@RequestParam("orderbookId") String orderbookId) {
         LOGGER.info("Get request for {} state received.", orderbookId);
         return exchangeDataService.getOrderbookState(orderbookId);
+    }
+
+    @GetMapping("/instrumentHierarchy")
+    public InstrumentHierarchy getInstrumentHierarchy() {
+        LOGGER.info("Get request instrument hierarchy received");
+        return exchangeDataService.getInstrumentHierarchy();
     }
 }

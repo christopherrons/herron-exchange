@@ -102,7 +102,7 @@ function MarketByLevelBarChart({ marketByLevel }: Props) {
   };
   return (
     <div className="mbl-chart">
-      <h3>Market by Level</h3>
+      <h3>Market by Level - {marketByLevel.orderbookId}</h3>
       <BarChart data={data} options={options}></BarChart>
     </div>
   );
