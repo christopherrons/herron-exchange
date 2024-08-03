@@ -12,4 +12,3 @@ sleep 5
 
 ./shutdown-bitstamp-consumer-server.sh
 sleep 5
-

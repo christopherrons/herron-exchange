@@ -1,8 +1,8 @@
 package com.herron.exchange.exchangeengine.server.config;
 
+import com.herron.exchange.exchangeengine.server.websocket.LiveEventStreamingService;
 import com.herron.exchange.exchangeengine.server.websocket.SubscriptionInterceptor;
 import com.herron.exchange.exchangeengine.server.websocket.SubscriptionService;
-import com.herron.exchange.exchangeengine.server.websocket.LiveEventStreamingService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

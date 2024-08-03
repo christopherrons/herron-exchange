@@ -12,4 +12,3 @@ sleep 5
 
 ./startup-bitstamp-consumer-server.sh
 sleep 5
-

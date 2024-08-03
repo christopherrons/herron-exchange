@@ -29,9 +29,9 @@ public class ShadowOrderbook implements ShadowOrderbookReadonly {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShadowOrderbook.class);
     private final OrderbookData orderbookData;
     private final ActiveOrders activeOrders;
-    private TradingStatesEnum currentState = CLOSED;
     private final AtomicReference<PriceQuote> latestPrice = new AtomicReference<>();
     private final LockHandler lock = new LockHandler();
+    private TradingStatesEnum currentState = CLOSED;
 
     public ShadowOrderbook(OrderbookData orderbookData, ActiveOrders activeOrders) {
         this.orderbookData = orderbookData;

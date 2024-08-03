@@ -51,17 +51,17 @@ public class KafkaConfig {
             this.config = config;
         }
 
-        public record KafkaTopicConfig(int offset,
-                                       int partition,
-                                       int eventLogging,
-                                       String topic) {
-        }
-
         List<KafkaSubscriptionDetails> getDetails(KafkaTopicEnum topicEnum) {
             return config.stream()
                     .filter(c -> c.topic.equals(topicEnum.getTopicName()))
                     .map(c -> new KafkaSubscriptionDetails(GROUP_ID, new PartitionKey(topicEnum, c.partition), c.offset, c.eventLogging))
                     .toList();
+        }
+
+        public record KafkaTopicConfig(int offset,
+                                       int partition,
+                                       int eventLogging,
+                                       String topic) {
         }
     }
 }
