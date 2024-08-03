@@ -17,7 +17,7 @@ public class InstrumentHierarchyBuilder {
 
     public static InstrumentHierarchy build() {
 
-        var rootNode = new Tree.TreeNode(ROOT);
+        var rootNode = new Tree.TreeNode(ROOT, ROOT, new ArrayList<>());
         Map<String, Tree.TreeNode> idToChild = new HashMap<>();
 
         for (var hierarchy : getHierarchies()) {
