@@ -10,7 +10,7 @@ function App() {
           <MarketSummary></MarketSummary>
         </div>
       </div>
-      <div>
+      <div className="footer">
         <Footer />
       </div>
     </div>

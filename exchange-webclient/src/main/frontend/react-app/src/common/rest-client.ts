@@ -1,6 +1,7 @@
+import { BASE_URL } from "./config";
 import { InstrumentHierarchy } from "./types";
 
-const URL: string = "http://localhost:8087/exchangeData";
+const URL: string = BASE_URL + "exchangeData";
 
 export const fetchOrderbookState = async (orderbookId: string): Promise<string> => {
   const response = await fetch(`${URL}/orderbookState?orderbookId=${orderbookId}`);

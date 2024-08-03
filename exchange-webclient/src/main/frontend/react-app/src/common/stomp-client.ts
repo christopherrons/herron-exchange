@@ -1,7 +1,7 @@
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
 import { Message } from "./types";
-import { useEffect } from "react";
+import { BASE_URL } from "./config";
 
 interface Props {
   id: string;
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const stompSubcription = ({ id, topics, handleMessage }: Props) => {
-  const sockJS = new SockJS("http://localhost:8087/exchange");
+  const sockJS = new SockJS(BASE_URL + "exchange");
   const client = new Client({
     webSocketFactory: () => sockJS,
     onConnect: () => {

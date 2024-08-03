@@ -4,7 +4,7 @@ function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="footer">
+    <footer>
       <p>&copy; {currentYear} Herron Exchange. All rights reserved.</p>
     </footer>
   );
