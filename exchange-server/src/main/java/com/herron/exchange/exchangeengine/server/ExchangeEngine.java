@@ -25,9 +25,9 @@ public class ExchangeEngine {
         var key = ReferenceDataCache.getCache().getOrderbookData(orderbookId).instrument().product().productName();
         orderbookToPartitionKey.putIfAbsent(orderbookId, key);
         partitionKeyToMatchingEngine.computeIfAbsent(key, k -> {
-                    var matchingEngine = new ShadowOrderbookHandler(key, liveEventStreamingService);
-                    matchingEngine.init();
-                    return matchingEngine;
+                    var orderbookHandler = new ShadowOrderbookHandler(key, liveEventStreamingService);
+                    orderbookHandler.init();
+                    return orderbookHandler;
                 })
                 .queueMessage(orderbookEvent);
     }
